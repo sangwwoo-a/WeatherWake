@@ -1,0 +1,2 @@
+-keep class com.weatherwake.** { *; }
+-keep class com.weatherwake.data.model.** { *; }

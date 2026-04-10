@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.WeatherWake" parent="Theme.Material3.Dark.NoActionBar">
+
+        <!-- Primary -->
+        <item name="colorPrimary">@color/primary_blue</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorPrimaryContainer">@color/primary_blue_container</item>
+        <item name="colorOnPrimaryContainer">@color/text_primary</item>
+
+        <!-- Secondary -->
+        <item name="colorSecondary">@color/cyan_weather</item>
+        <item name="colorOnSecondary">@color/bg_deep</item>
+        <item name="colorSecondaryContainer">@color/cyan_container</item>
+        <item name="colorOnSecondaryContainer">@color/cyan_weather</item>
+
+        <!-- Surface & Background -->
+        <item name="colorSurface">@color/bg_surface</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorSurfaceVariant">@color/bg_card</item>
+        <item name="colorOnSurfaceVariant">@color/text_secondary</item>
+        <item name="android:colorBackground">@color/bg_deep</item>
+        <item name="android:windowBackground">@color/bg_deep</item>
+
+        <!-- Outline -->
+        <item name="colorOutline">@color/outline</item>
+        <item name="colorOutlineVariant">@color/outline_variant</item>
+
+        <!-- Status bar & nav bar -->
+        <item name="android:statusBarColor">@color/bg_deep</item>
+        <item name="android:navigationBarColor">@color/bg_deep</item>
+        <item name="android:windowLightStatusBar">false</item>
+
+        <!-- Elevation overlays (dark theme에서 카드가 더 밝아지는 현상 억제) -->
+        <item name="elevationOverlayEnabled">true</item>
+        <item name="elevationOverlayColor">@color/primary_blue</item>
+
+        <!-- Shape -->
+        <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.WeatherWake.Large</item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.WeatherWake.Medium</item>
+    </style>
+
+    <style name="ShapeAppearance.WeatherWake.Large" parent="ShapeAppearance.Material3.LargeComponent">
+        <item name="cornerSize">20dp</item>
+    </style>
+    <style name="ShapeAppearance.WeatherWake.Medium" parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerSize">14dp</item>
+    </style>
+
+    <!-- 알람 링 화면 – 완전 블랙 -->
+    <style name="Theme.WeatherWake.AlarmRing" parent="Theme.WeatherWake">
+        <item name="android:colorBackground">#000000</item>
+        <item name="android:windowBackground">#000000</item>
+        <item name="colorSurface">#000000</item>
+        <item name="android:statusBarColor">#000000</item>
+        <item name="android:navigationBarColor">#000000</item>
+    </style>
+</resources>

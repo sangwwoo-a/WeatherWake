@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base palette -->
+    <color name="bg_deep">#0C1220</color>
+    <color name="bg_surface">#131C2E</color>
+    <color name="bg_card">#1A2540</color>
+    <color name="bg_card_elevated">#1F2D4D</color>
+
+    <!-- Primary accent – electric blue -->
+    <color name="primary_blue">#5B9CF6</color>
+    <color name="primary_blue_dim">#3B6FCC</color>
+    <color name="primary_blue_container">#1A3260</color>
+
+    <!-- Secondary accent – cyan (weather) -->
+    <color name="cyan_weather">#38BDF8</color>
+    <color name="cyan_container">#0C3A58</color>
+
+    <!-- Warm amber – temperature -->
+    <color name="amber_temp">#FBBF24</color>
+
+    <!-- Rain / snow tints -->
+    <color name="rain_color">#60A5FA</color>
+    <color name="snow_color">#A5B4FC</color>
+    <color name="thunder_color">#F59E0B</color>
+
+    <!-- Text -->
+    <color name="text_primary">#EDF2FF</color>
+    <color name="text_secondary">#7A90B8</color>
+    <color name="text_hint">#3D5280</color>
+
+    <!-- Dividers / outline -->
+    <color name="outline">#253352</color>
+    <color name="outline_variant">#1D2A44</color>
+
+    <!-- Alarm ON green -->
+    <color name="alarm_active">#34D399</color>
+    <color name="alarm_inactive">#3D5280</color>
+
+    <!-- Legacy (unused but kept to avoid ref errors) -->
+    <color name="teal_700">#00796B</color>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+</resources>

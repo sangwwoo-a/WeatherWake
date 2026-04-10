@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 기본 그라디언트 배경 -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="linear"
+                android:angle="135"
+                android:startColor="#1A2E58"
+                android:centerColor="#152244"
+                android:endColor="#0F1830"/>
+            <corners android:radius="20dp"/>
+        </shape>
+    </item>
+    <!-- 상단 왼쪽에 subtle glow -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="radial"
+                android:gradientRadius="200dp"
+                android:centerX="0.1"
+                android:centerY="0.1"
+                android:startColor="#1A4A8A"
+                android:endColor="#00000000"/>
+            <corners android:radius="20dp"/>
+        </shape>
+    </item>
+</layer-list>

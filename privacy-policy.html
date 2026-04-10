@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>개인정보처리방침 | WeatherWake</title>
+  <style>
+    :root {
+      --primary: #3B82F6;
+      --primary-dark: #2563EB;
+      --primary-light: #EFF6FF;
+      --sky: #0EA5E9;
+      --rain: #6366F1;
+      --snow: #8B5CF6;
+      --text: #111827;
+      --text-muted: #6b7280;
+      --border: #e5e7eb;
+      --bg: #F8FAFC;
+      --white: #ffffff;
+      --green: #10B981;
+      --green-light: #ECFDF5;
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Apple SD Gothic Neo', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.8;
+      font-size: 15px;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .header-inner {
+      max-width: 880px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 58px;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 800;
+      font-size: 17px;
+      color: var(--primary-dark);
+      text-decoration: none;
+    }
+    .logo-icon {
+      font-size: 22px;
+    }
+    .header-badge {
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1px solid #BFDBFE;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(135deg, #1D4ED8 0%, #0EA5E9 60%, #6366F1 100%);
+      color: white;
+      padding: 56px 24px 48px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '🌦️';
+      position: absolute;
+      font-size: 200px;
+      opacity: 0.07;
+      top: -30px;
+      right: -20px;
+      line-height: 1;
+    }
+    .hero h1 {
+      font-size: 30px;
+      font-weight: 800;
+      margin-bottom: 10px;
+      letter-spacing: -0.5px;
+    }
+    .hero p {
+      font-size: 15px;
+      opacity: 0.88;
+      max-width: 540px;
+      margin: 0 auto 20px;
+    }
+    .hero-chips {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 6px;
+    }
+    .hero-chip {
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 20px;
+      padding: 5px 14px;
+      font-size: 13px;
+    }
+    .hero-meta {
+      margin-top: 20px;
+      font-size: 12.5px;
+      opacity: 0.7;
+    }
+
+    /* ── Privacy Score Banner ── */
+    .score-bar {
+      max-width: 880px;
+      margin: 32px auto 0;
+      padding: 0 24px;
+    }
+    .score-card {
+      background: var(--green-light);
+      border: 1px solid #A7F3D0;
+      border-radius: var(--radius);
+      padding: 16px 22px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .score-emoji { font-size: 28px; }
+    .score-text { flex: 1; }
+    .score-text strong { color: #065F46; font-size: 14.5px; display: block; margin-bottom: 2px; }
+    .score-text span { color: #047857; font-size: 13px; }
+
+    /* ── Layout ── */
+    .container {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 36px 24px 80px;
+      display: grid;
+      grid-template-columns: 210px 1fr;
+      gap: 32px;
+      align-items: start;
+    }
+
+    /* ── TOC ── */
+    .toc {
+      position: sticky;
+      top: 74px;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+    }
+    .toc-title {
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+    .toc ul { list-style: none; }
+    .toc li { margin-bottom: 1px; }
+    .toc a {
+      display: block;
+      padding: 6px 10px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 12.5px;
+      border-radius: 6px;
+      transition: all 0.15s;
+      line-height: 1.4;
+    }
+    .toc a:hover {
+      background: var(--primary-light);
+      color: var(--primary-dark);
+    }
+
+    /* ── Content ── */
+    .content { display: flex; flex-direction: column; gap: 24px; }
+
+    /* ── Cards ── */
+    .section-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+    }
+    .section-num {
+      width: 26px;
+      height: 26px;
+      background: var(--primary);
+      color: white;
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .section-header h2 {
+      font-size: 15.5px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .section-body {
+      padding: 22px;
+    }
+    .section-body p {
+      color: #374151;
+      font-size: 14.5px;
+      margin-bottom: 14px;
+    }
+    .section-body p:last-child { margin-bottom: 0; }
+
+    /* ── Permission Blocks ── */
+    .perm-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 4px;
+    }
+    .perm-item {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      background: var(--bg);
+    }
+    .perm-item .perm-icon { font-size: 18px; margin-bottom: 5px; }
+    .perm-item .perm-name { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+    .perm-item .perm-desc { font-size: 12.5px; color: var(--text-muted); line-height: 1.5; }
+
+    /* ── Data Flow Diagram ── */
+    .flow-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 12px 0;
+    }
+    .flow-node {
+      background: var(--primary-light);
+      border: 1px solid #BFDBFE;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--primary-dark);
+    }
+    .flow-node.local {
+      background: var(--green-light);
+      border-color: #A7F3D0;
+      color: #065F46;
+    }
+    .flow-node.external {
+      background: #FEF3C7;
+      border-color: #FDE68A;
+      color: #92400E;
+    }
+    .flow-arrow {
+      color: var(--text-muted);
+      font-size: 16px;
+    }
+
+    /* ── Notice Box ── */
+    .notice {
+      background: var(--primary-light);
+      border: 1px solid #BFDBFE;
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-size: 13.5px;
+      color: #1E40AF;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .notice .ni { flex-shrink: 0; font-size: 16px; }
+    .notice.green {
+      background: var(--green-light);
+      border-color: #A7F3D0;
+      color: #065F46;
+    }
+    .notice.yellow {
+      background: #FFFBEB;
+      border-color: #FDE68A;
+      color: #92400E;
+    }
+
+    /* ── Table ── */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+      margin-top: 8px;
+    }
+    .data-table th {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 9px 13px;
+      text-align: left;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .data-table td {
+      border: 1px solid var(--border);
+      padding: 9px 13px;
+      color: #374151;
+      vertical-align: top;
+    }
+    .data-table tr:hover td { background: var(--bg); }
+
+    /* ── Tag list ── */
+    .tag-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .tag {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 11px;
+      font-size: 13px;
+      color: #374151;
+    }
+
+    /* ── Rights list ── */
+    .rights-list { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+    .rights-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: #374151; }
+    .rights-list .bullet {
+      width: 22px; height: 22px;
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700;
+      flex-shrink: 0; margin-top: 2px;
+    }
+
+    /* ── Contact Box ── */
+    .contact-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 15px 18px;
+      font-size: 14px;
+      color: #374151;
+      line-height: 2;
+    }
+    .contact-box a { color: var(--primary); text-decoration: none; }
+
+    /* ── Footer ── */
+    footer {
+      background: var(--white);
+      border-top: 1px solid var(--border);
+      padding: 28px 24px;
+      text-align: center;
+    }
+    .footer-inner { max-width: 880px; margin: 0 auto; }
+    footer p { font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
+    footer .brand { font-weight: 700; color: var(--primary-dark); }
+
+    /* ── Responsive ── */
+    @media (max-width: 680px) {
+      .container { grid-template-columns: 1fr; padding: 20px 16px 60px; }
+      .toc { position: static; }
+      .hero h1 { font-size: 22px; }
+      .perm-grid { grid-template-columns: 1fr; }
+      .flow-box { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <div class="header-inner">
+    <a href="#" class="logo">
+      <span class="logo-icon">🌦️</span>
+      WeatherWake
+    </a>
+    <span class="header-badge">개인정보처리방침</span>
+  </div>
+</header>
+
+<!-- Hero -->
+<div class="hero">
+  <h1>개인정보처리방침</h1>
+  <p>WeatherWake는 날씨에 따라 알람을 자동 조정하는 앱입니다.<br>이용자의 개인정보는 오직 날씨 조회와 알람 동작에만 사용됩니다.</p>
+  <div class="hero-chips">
+    <span class="hero-chip">📍 위치 정보 사용</span>
+    <span class="hero-chip">🔔 알람 서비스</span>
+    <span class="hero-chip">🌧️ OpenWeatherMap 연동</span>
+    <span class="hero-chip">📵 로그인 불필요</span>
+    <span class="hero-chip">☁️ 서버 저장 없음</span>
+  </div>
+  <div class="hero-meta">시행일: 2026년 04월 10일 &nbsp;|&nbsp; 버전: v1.0</div>
+</div>
+
+<!-- Privacy Score -->
+<div class="score-bar">
+  <div class="score-card">
+    <div class="score-emoji">🛡️</div>
+    <div class="score-text">
+      <strong>WeatherWake는 최소한의 정보만 수집합니다</strong>
+      <span>회원가입 없음 · 서버에 개인정보 저장 없음 · 광고 없음 · 위치 정보는 날씨 조회에만 사용</span>
+    </div>
+  </div>
+</div>
+
+<!-- Main Layout -->
+<div class="container">
+
+  <!-- TOC -->
+  <aside class="toc">
+    <div class="toc-title">목차</div>
+    <ul>
+      <li><a href="#s1">1. 수집하는 정보와 권한</a></li>
+      <li><a href="#s2">2. 정보의 흐름과 이용 목적</a></li>
+      <li><a href="#s3">3. 위치 정보 상세 안내</a></li>
+      <li><a href="#s4">4. 외부 서비스 연동</a></li>
+      <li><a href="#s5">5. 데이터 저장 및 보존</a></li>
+      <li><a href="#s6">6. 제3자 제공 및 공유</a></li>
+      <li><a href="#s7">7. 이용자의 권리</a></li>
+      <li><a href="#s8">8. 보안 조치</a></li>
+      <li><a href="#s9">9. 개인정보 보호책임자</a></li>
+      <li><a href="#s10">10. 방침 변경 안내</a></li>
+    </ul>
+  </aside>
+
+  <!-- Content -->
+  <main class="content">
+
+    <!-- Section 1: 수집하는 정보와 권한 -->
+    <div class="section-card" id="s1">
+      <div class="section-header">
+        <div class="section-num">1</div>
+        <h2>수집하는 정보와 앱 권한</h2>
+      </div>
+      <div class="section-body">
+        <p>WeatherWake는 <strong>회원가입·로그인이 없으며</strong> 이름, 이메일, 전화번호 등 개인 식별 정보를 수집하지 않습니다. 앱 동작에 필요한 최소한의 권한만 사용합니다.</p>
+
+        <div class="perm-grid">
+          <div class="perm-item">
+            <div class="perm-icon">📍</div>
+            <div class="perm-name">정밀 위치 (GPS)</div>
+            <div class="perm-desc">현재 위치 날씨를 조회할 때 사용. 이용자가 수동 위치를 선택한 경우 요청하지 않음.</div>
+          </div>
+          <div class="perm-item">
+            <div class="perm-icon">📡</div>
+            <div class="perm-name">대략적 위치</div>
+            <div class="perm-desc">정밀 GPS를 사용할 수 없을 때 날씨 조회에 활용하는 보조 권한.</div>
+          </div>
+          <div class="perm-item">
+            <div class="perm-icon">🔔</div>
+            <div class="perm-name">알림 (Notifications)</div>
+            <div class="perm-desc">알람 울림 및 날씨로 인해 알람 시각이 변경되었을 때 알림 표시.</div>
+          </div>
+          <div class="perm-item">
+            <div class="perm-icon">⏰</div>
+            <div class="perm-name">정확한 알람 예약</div>
+            <div class="perm-desc">설정한 시각에 정확하게 알람이 울리도록 AlarmManager를 사용.</div>
+          </div>
+          <div class="perm-item">
+            <div class="perm-icon">🔄</div>
+            <div class="perm-name">부팅 완료 수신</div>
+            <div class="perm-desc">기기 재시작 후 설정된 알람을 자동으로 복원하기 위해 사용.</div>
+          </div>
+          <div class="perm-item">
+            <div class="perm-icon">💡</div>
+            <div class="perm-name">화면 깨우기 (Wake Lock)</div>
+            <div class="perm-desc">알람이 울릴 때 잠금 화면 위에서도 화면이 켜지도록 하는 권한.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2: 데이터 흐름 -->
+    <div class="section-card" id="s2">
+      <div class="section-header">
+        <div class="section-num">2</div>
+        <h2>정보의 흐름과 이용 목적</h2>
+      </div>
+      <div class="section-body">
+        <p>앱 내 데이터가 어디서 오고 어디로 가는지 한눈에 확인하세요.</p>
+
+        <div class="flow-box">
+          <div class="flow-node">📍 기기의 GPS 위치</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-node external">🌐 OpenWeatherMap API<br><small style="font-weight:400">(위도·경도만 전송)</small></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-node local">📱 기기 내부 처리<br><small style="font-weight:400">(날씨 결과 임시 사용)</small></div>
+        </div>
+
+        <div class="flow-box" style="margin-top:8px;">
+          <div class="flow-node">⚙️ 알람 설정 정보</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-node local">💾 기기 내부 DB만 저장<br><small style="font-weight:400">(서버 전송 없음)</small></div>
+        </div>
+
+        <div class="notice" style="margin-top:16px;">
+          <span class="ni">ℹ️</span>
+          <span>위치 좌표(위도·경도)는 날씨 API 호출 시 <strong>OpenWeatherMap 서버</strong>로 전송됩니다. 위치 정보는 Devkorea1m의 자체 서버로는 절대 전송되지 않습니다.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 3: 위치 정보 -->
+    <div class="section-card" id="s3">
+      <div class="section-header">
+        <div class="section-num">3</div>
+        <h2>위치 정보 상세 안내</h2>
+      </div>
+      <div class="section-body">
+        <p>위치 정보는 현재 날씨를 조회하는 핵심 기능에만 사용되며, 두 가지 방식으로 제공됩니다.</p>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>방식</th>
+              <th>내용</th>
+              <th>저장 위치</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>GPS 자동 위치</strong></td>
+              <td>Google Play Services의 FusedLocationProvider를 통해 현재 기기 위치 조회. 앱 사용 시 및 백그라운드 날씨 체크 시 30분마다 사용.</td>
+              <td>기기 내 임시 사용 (저장 안 함)</td>
+            </tr>
+            <tr>
+              <td><strong>수동 위치 저장</strong></td>
+              <td>이용자가 직접 입력한 위치(위도·경도·이름). GPS 사용 해제 시 이 값으로 날씨 조회.</td>
+              <td>기기 내부 SharedPreferences</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="notice green" style="margin-top:16px;">
+          <span class="ni">✅</span>
+          <span>위치 정보는 <strong>날씨 API 호출 외의 목적으로는 절대 사용되지 않으며</strong>, 이용자는 앱 설정에서 언제든 GPS 사용을 해제하거나 저장된 위치를 삭제할 수 있습니다.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 4: 외부 서비스 -->
+    <div class="section-card" id="s4">
+      <div class="section-header">
+        <div class="section-num">4</div>
+        <h2>외부 서비스 연동</h2>
+      </div>
+      <div class="section-body">
+        <p>WeatherWake는 다음의 외부 서비스를 사용합니다.</p>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>서비스</th>
+              <th>제공사</th>
+              <th>전송 정보</th>
+              <th>목적</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Current Weather API</strong></td>
+              <td>OpenWeatherMap<br><small>(openweathermap.org)</small></td>
+              <td>위도·경도 (좌표만)</td>
+              <td>실시간 날씨 데이터(비·눈·맑음) 조회</td>
+            </tr>
+            <tr>
+              <td><strong>FusedLocation Provider</strong></td>
+              <td>Google Play Services</td>
+              <td>없음 (기기 내 처리)</td>
+              <td>기기 GPS 위치 정보 획득</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="notice yellow" style="margin-top:14px;">
+          <span class="ni">⚠️</span>
+          <span>OpenWeatherMap의 개인정보 처리 방침은 <a href="https://openweathermap.org/privacy-policy" target="_blank" style="color:#92400E; font-weight:600;">openweathermap.org/privacy-policy</a>에서 확인할 수 있습니다. 날씨 API 호출 시 위도·경도만 전송되며, 식별 가능한 개인정보는 포함되지 않습니다.</span>
+        </div>
+
+        <div class="notice" style="margin-top:10px;">
+          <span class="ni">📵</span>
+          <span>WeatherWake는 <strong>광고 SDK, 분석 SDK, SNS 연동 SDK를 사용하지 않습니다.</strong> 제3자 광고 네트워크에 어떠한 정보도 제공하지 않습니다.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 5: 저장 및 보존 -->
+    <div class="section-card" id="s5">
+      <div class="section-header">
+        <div class="section-num">5</div>
+        <h2>데이터 저장 및 보존 기간</h2>
+      </div>
+      <div class="section-body">
+        <p>앱의 모든 데이터는 <strong>이용자의 기기 내부에만 저장</strong>되며, Devkorea1m의 별도 서버에는 저장되지 않습니다.</p>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>저장 데이터</th>
+              <th>저장 위치</th>
+              <th>내용</th>
+              <th>삭제 시점</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>알람 설정</strong></td>
+              <td>기기 내부 Room DB</td>
+              <td>알람 시각, 요일, 이름, 날씨 연동 설정, 알람음 경로</td>
+              <td>이용자가 알람 삭제 또는 앱 삭제 시</td>
+            </tr>
+            <tr>
+              <td><strong>저장 위치</strong></td>
+              <td>기기 SharedPreferences</td>
+              <td>위도·경도 좌표, 위치 이름, GPS 사용 여부</td>
+              <td>이용자가 위치 초기화 또는 앱 삭제 시</td>
+            </tr>
+            <tr>
+              <td><strong>날씨 결과</strong></td>
+              <td>메모리 (임시)</td>
+              <td>현재 날씨 상태 (비/눈/맑음), 날씨 설명</td>
+              <td>앱 프로세스 종료 시 자동 삭제</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="notice green" style="margin-top:14px;">
+          <span class="ni">💡</span>
+          <span>앱을 기기에서 삭제(언인스톨)하면 위의 모든 로컬 데이터가 완전히 삭제됩니다. 클라우드 백업(android:allowBackup)은 시스템 백업에만 한정되며, Devkorea1m은 이 데이터에 접근할 수 없습니다.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 6: 제3자 제공 -->
+    <div class="section-card" id="s6">
+      <div class="section-header">
+        <div class="section-num">6</div>
+        <h2>제3자 제공 및 공유</h2>
+      </div>
+      <div class="section-body">
+        <p>Devkorea1m은 이용자의 개인정보를 제3자에게 판매·임대·제공하지 않습니다.</p>
+        <ul class="rights-list">
+          <li>
+            <span class="bullet">①</span>
+            <span>날씨 조회를 위해 <strong>위도·경도 좌표</strong>가 OpenWeatherMap API로 전송됩니다. 이는 서비스의 핵심 기능 제공을 위해 필수적이며, 식별 가능한 개인정보가 포함되지 않습니다.</span>
+          </li>
+          <li>
+            <span class="bullet">②</span>
+            <span>법령의 규정에 의거하거나 수사기관의 적법한 요청이 있는 경우 법이 허용하는 범위 내에서 최소한으로 제공할 수 있습니다.</span>
+          </li>
+          <li>
+            <span class="bullet">③</span>
+            <span>그 외의 경우에는 이용자의 명시적 동의 없이 개인정보를 제3자에게 제공하지 않습니다.</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Section 7: 이용자 권리 -->
+    <div class="section-card" id="s7">
+      <div class="section-header">
+        <div class="section-num">7</div>
+        <h2>이용자의 권리</h2>
+      </div>
+      <div class="section-body">
+        <p>이용자는 앱 내에서 직접 아래 권리를 행사할 수 있습니다.</p>
+        <ul class="rights-list">
+          <li>
+            <span class="bullet">✓</span>
+            <span><strong>위치 정보 삭제</strong> — 앱 위치 설정 화면에서 저장된 위치를 삭제할 수 있습니다.</span>
+          </li>
+          <li>
+            <span class="bullet">✓</span>
+            <span><strong>GPS 권한 철회</strong> — 기기 설정 → 앱 권한에서 위치 권한을 언제든지 거부할 수 있습니다. (GPS 모드 사용 불가)</span>
+          </li>
+          <li>
+            <span class="bullet">✓</span>
+            <span><strong>알람 데이터 삭제</strong> — 앱 내에서 개별 알람을 삭제하거나, 앱 삭제 시 모든 데이터가 완전히 삭제됩니다.</span>
+          </li>
+          <li>
+            <span class="bullet">✓</span>
+            <span><strong>백그라운드 동작 제어</strong> — 기기 설정에서 앱의 백그라운드 활동을 제한하여 30분 주기 날씨 체크를 비활성화할 수 있습니다. (알람 정확도에 영향)</span>
+          </li>
+        </ul>
+        <p style="margin-top:16px;">그 외 개인정보 열람·정정 요청은 아래 담당자 이메일로 문의하시면 영업일 기준 3일 이내 처리합니다.</p>
+      </div>
+    </div>
+
+    <!-- Section 8: 보안 -->
+    <div class="section-card" id="s8">
+      <div class="section-header">
+        <div class="section-num">8</div>
+        <h2>보안 조치</h2>
+      </div>
+      <div class="section-body">
+        <div class="tag-list" style="margin-bottom:16px;">
+          <span class="tag">🔒 HTTPS 통신 강제 적용</span>
+          <span class="tag">📦 로컬 DB 앱 샌드박스 격리</span>
+          <span class="tag">🚫 광고/트래킹 SDK 미사용</span>
+          <span class="tag">🔑 API 키 앱 내 관리</span>
+        </div>
+        <p>WeatherWake의 모든 네트워크 통신은 HTTPS를 통해 암호화되어 전송됩니다. 기기 내 저장 데이터는 Android 앱 샌드박스로 보호되어 다른 앱이 접근할 수 없습니다.</p>
+        <p>날씨 API 키는 앱 내부에 포함되어 있으며, 이용자의 데이터 전송에는 사용되지 않습니다.</p>
+      </div>
+    </div>
+
+    <!-- Section 9: 담당자 -->
+    <div class="section-card" id="s9">
+      <div class="section-header">
+        <div class="section-num">9</div>
+        <h2>개인정보 보호책임자</h2>
+      </div>
+      <div class="section-body">
+        <p>개인정보 관련 문의, 불만, 피해 구제에 관한 사항은 아래 담당자에게 연락해 주시기 바랍니다.</p>
+        <div class="contact-box">
+          <strong>개인정보 보호책임자</strong><br>
+          회사명: Devkorea1m<br>
+          앱 이름: WeatherWake<br>
+          이메일: <a href="mailto:sangwwoo84@gmail.com">sangwwoo84@gmail.com</a><br>
+          답변 기간: 영업일 기준 3일 이내
+        </div>
+        <p style="margin-top:14px; font-size:13.5px;">기타 개인정보 침해에 대한 신고·상담은 아래 기관에 문의하실 수 있습니다.</p>
+        <div class="tag-list">
+          <span class="tag">🏛️ 개인정보 보호위원회 (privacy.go.kr)</span>
+          <span class="tag">📞 개인정보 침해신고센터 (118)</span>
+          <span class="tag">⚖️ 경찰청 사이버수사국 (ecrm.cyber.go.kr)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 10: 방침 변경 -->
+    <div class="section-card" id="s10">
+      <div class="section-header">
+        <div class="section-num">10</div>
+        <h2>방침 변경 안내</h2>
+      </div>
+      <div class="section-body">
+        <p>본 개인정보처리방침은 앱 업데이트 또는 법령 변경에 따라 수정될 수 있습니다. 변경 시 앱 스토어 업데이트 설명 또는 앱 내 공지를 통해 안내드립니다.</p>
+        <p>중요 변경(수집 항목 추가, 제3자 제공 항목 추가 등)은 최소 <strong>7일 전</strong>에 사전 안내합니다.</p>
+        <div class="contact-box" style="margin-top:8px;">
+          <strong>시행일:</strong> 2026년 04월 10일<br>
+          <strong>최초 시행일:</strong> 2026년 04월 10일
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-inner">
+    <p>Copyright &copy; 2026 <span class="brand">Devkorea1m</span>. All rights reserved.</p>
+    <p>WeatherWake 개인정보 문의: <a href="mailto:sangwwoo84@gmail.com" style="color:var(--primary); text-decoration:none;">sangwwoo84@gmail.com</a></p>
+  </div>
+</footer>
+
+</body>
+</html>
