@@ -12,15 +12,20 @@ object DateTimeUtils {
      * @param repeatDays     반복 요일 비트마스크 (일=bit0 … 토=bit6).
      *                       0 또는 0b1111111이면 매일 반복.
      * @param advanceMinutes 알람을 앞당길 분 (0이면 원래 시각)
+     * @param fromMs         "이 시각 이후"의 첫 발동을 찾는다. 기본은 현재 시각.
+     *                       알람 발동 후 재예약할 때 "오늘 원래 시각"이 이미 소비됐다고
+     *                       표시하기 위해 (오늘 원래 시각 + 1분) 등을 넘긴다.
      * @return 다음 알람 트리거 시각 (epoch ms)
      */
     fun nextAlarmTimeMs(
         hour: Int,
         minute: Int,
         repeatDays: Int = AlarmConstants.REPEAT_EVERY_DAY,
-        advanceMinutes: Int = 0
+        advanceMinutes: Int = 0,
+        fromMs: Long = System.currentTimeMillis()
     ): Long {
         val cal = Calendar.getInstance().apply {
+            timeInMillis = fromMs
             set(Calendar.HOUR_OF_DAY, hour)
             set(Calendar.MINUTE, minute)
             set(Calendar.SECOND, 0)
@@ -30,7 +35,7 @@ object DateTimeUtils {
 
         // 매일 반복: 이미 지났으면 내일
         if (repeatDays == AlarmConstants.REPEAT_EVERY_DAY || repeatDays == 0) {
-            if (cal.timeInMillis <= System.currentTimeMillis()) {
+            if (cal.timeInMillis <= fromMs) {
                 cal.add(Calendar.DAY_OF_YEAR, 1)
             }
             return cal.timeInMillis
@@ -43,7 +48,7 @@ object DateTimeUtils {
             if (offset > 0) checkCal.add(Calendar.DAY_OF_YEAR, offset)
             val dow = checkCal.get(Calendar.DAY_OF_WEEK) - 1
             if ((repeatDays and (1 shl dow)) != 0 &&
-                checkCal.timeInMillis > System.currentTimeMillis()
+                checkCal.timeInMillis > fromMs
             ) {
                 return checkCal.timeInMillis
             }

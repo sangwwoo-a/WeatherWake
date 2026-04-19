@@ -7,6 +7,7 @@ import android.content.Intent
 import com.devkorea1m.weatherwake.AlarmReceiver
 import com.devkorea1m.weatherwake.MainActivity
 import com.devkorea1m.weatherwake.data.model.AlarmEntity
+import com.devkorea1m.weatherwake.worker.WeatherCheckWorker
 
 object AlarmScheduler {
 
@@ -17,14 +18,22 @@ object AlarmScheduler {
     const val EXTRA_REPEAT_DAYS  = "repeat_days"
 
     /**
-     * 알람 등록 (또는 갱신)
+     * 알람 등록 (또는 갱신).
+     *
+     * 날씨 연동이 켜진 알람이면 "알람 시각 90분 전" WeatherCheckWorker 도 같이 (재)예약한다.
+     * AlarmReceiver 가 발동 후 이 함수로 다음 날 알람을 재예약할 때도 Worker 가 같이 등록돼야
+     * 다음 날 날씨 감지 앞당김이 동작한다.
+     *
      * @param advanceMinutes 앞당길 분 (0이면 원래 시각)
+     * @param fromMs         "이 시각 이후"의 첫 발동을 찾는다. 알람이 방금 울렸다면
+     *                       (오늘 원래 시각 + 1분) 을 넘겨 오늘 원래 시각 중복 발동을 방지.
      */
     fun schedule(
         context: Context,
         alarm: AlarmEntity,
         advanceMinutes: Int = 0,
-        movedReason: String = ""
+        movedReason: String = "",
+        fromMs: Long = System.currentTimeMillis()
     ) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = buildIntent(context, alarm, movedReason, advanceMinutes > 0)
@@ -53,7 +62,8 @@ object AlarmScheduler {
             hour           = alarm.hour,
             minute         = alarm.minute,
             repeatDays     = alarm.repeatDays,
-            advanceMinutes = advanceMinutes
+            advanceMinutes = advanceMinutes,
+            fromMs         = fromMs
         )
 
         try {
@@ -65,17 +75,24 @@ object AlarmScheduler {
             // Android 12+에서 SCHEDULE_EXACT_ALARM 권한 미승인 시 발생
             e.printStackTrace()
         }
+
+        // 날씨 연동 알람이면 해당 알람의 다음 "90분 전 날씨 체크" Worker 도 같이 재예약.
+        // (AlarmReceiver 가 발동 후 이 함수를 부를 때도 다음 날 Worker 가 함께 예약됨.)
+        if (alarm.isEnabled && alarm.weatherTrigger) {
+            WeatherCheckWorker.scheduleFor(context, alarm)
+        }
     }
 
-    /** 알람 취소 */
+    /** 알람 취소 — 90분 전 날씨 체크 Worker도 같이 취소 */
     fun cancel(context: Context, alarmId: Int) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(context, AlarmReceiver::class.java)
         val pendingIntent = PendingIntent.getBroadcast(
             context, alarmId, intent,
             PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
-        ) ?: return
-        alarmManager.cancel(pendingIntent)
+        )
+        if (pendingIntent != null) alarmManager.cancel(pendingIntent)
+        WeatherCheckWorker.cancelFor(context, alarmId)
     }
 
     private fun buildIntent(

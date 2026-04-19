@@ -6,7 +6,11 @@ import android.content.Intent
 
 /**
  * 알람 알림의 액션 버튼(끄기 / 5분 더)을 처리하는 BroadcastReceiver.
- * AlarmService에 ACTION 문자열을 전달해 소리·진동을 멈추거나 스누즈한다.
+ * AlarmService 에 ACTION 문자열을 전달해 소리·진동을 멈추거나 스누즈한다.
+ *
+ * MainActivity 로의 이동은 AlarmRingActivity.finishReceiver 가 담당한다.
+ * 여기서 startActivity(MainActivity) 를 직접 호출하면 Android 15 BAL 로 차단되므로
+ * (isPendingIntent=false → BAL_BLOCK) 그 경로는 사용하지 않는다.
  */
 class AlarmActionReceiver : BroadcastReceiver() {
 
@@ -19,14 +23,5 @@ class AlarmActionReceiver : BroadcastReceiver() {
             putExtra(AlarmService.EXTRA_ALARM_ID_ACTION, alarmId)
         }
         context.startService(serviceIntent)
-
-        // 알림 "끄기" 버튼 → 앱 첫 화면(MainActivity)으로 이동
-        if (action == AlarmService.ACTION_DISMISS) {
-            context.startActivity(
-                Intent(context, MainActivity::class.java).apply {
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                }
-            )
-        }
     }
 }

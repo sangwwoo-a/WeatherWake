@@ -38,8 +38,9 @@ class AlarmService : Service() {
 
     private var ringtone: Ringtone? = null
     private var vibrator: Vibrator? = null
-    private var currentAlarmId   = -1
-    private var currentRepeatDays = -1  // 0 = 반복 없음 (1회성)
+    private var currentAlarmId    = -1
+    private var currentRepeatDays = -1   // 0 = 반복 없음 (1회성)
+    private var currentSoundUri   = ""   // 스누즈 시 동일 음원 재사용
 
     /**
      * PARTIAL_WAKE_LOCK : 알람 재생 중 CPU를 깨어있게 유지.
@@ -55,7 +56,7 @@ class AlarmService : Service() {
                 // ForegroundServiceDidNotStartInTimeException 방지 가능.
                 // (정상 흐름은 AlarmActionReceiver/AlarmRingActivity 모두 startService() 사용)
                 if (ringtone == null) ensureForeground()
-                dismissAlarm()
+                dismissAlarm(intent)
                 return START_NOT_STICKY
             }
             ACTION_SNOOZE  -> {
@@ -68,12 +69,12 @@ class AlarmService : Service() {
         // 최초 알람 시작
         currentAlarmId    = intent?.getIntExtra(AlarmScheduler.EXTRA_ALARM_ID, -1) ?: -1
         currentRepeatDays = intent?.getIntExtra(AlarmScheduler.EXTRA_REPEAT_DAYS, -1) ?: -1
-        val soundUri      = intent?.getStringExtra(AlarmScheduler.EXTRA_SOUND_URI) ?: ""
+        currentSoundUri   = intent?.getStringExtra(AlarmScheduler.EXTRA_SOUND_URI) ?: ""
         val isMoved       = intent?.getBooleanExtra(AlarmScheduler.EXTRA_IS_MOVED, false) ?: false
         val movedReason   = intent?.getStringExtra(AlarmScheduler.EXTRA_MOVED_REASON) ?: ""
 
         startForegroundWithNotification(currentAlarmId, isMoved, movedReason)
-        playSound(soundUri)
+        playSound(currentSoundUri)
         playVibration()
         // AlarmRingActivity 실행은 startForegroundWithNotification()의 fullScreenIntent가 담당.
         // startActivity()를 별도로 호출하면 fullScreenIntent와 경합해 화면이 두 번 표시되는 버그 발생.
@@ -213,23 +214,31 @@ class AlarmService : Service() {
 
     // ─── 끄기 / 스누즈 ───────────────────────────────────────────────
 
-    private fun dismissAlarm() {
+    private fun dismissAlarm(intent: Intent? = null) {
         ringtone?.stop()
         vibrator?.cancel()
         wakeLock?.takeIf { it.isHeld }?.release()
-        // AlarmRingActivity 종료 브로드캐스트
-        // RECEIVER_NOT_EXPORTED receiver(AlarmRingActivity)는 package 지정 없는
-// implicit broadcast를 받지 못하므로 setPackage로 명시 targeting 해야 한다.
-sendBroadcast(Intent(ACTION_FINISH_RING).setPackage(packageName))
 
-        // 반복 없음 (1회성) 알람은 울리고 나면 자동으로 비활성화.
-        // runBlocking 으로 DB 업데이트를 완전히 마친 뒤 stopSelf() 를 호출해야
-        // stopSelf()→프로세스 종료 경쟁에서 업데이트가 누락되지 않는다.
-        if (currentRepeatDays == 0 && currentAlarmId != -1) {
+        // AlarmRingActivity 종료 브로드캐스트.
+        // RECEIVER_NOT_EXPORTED receiver 는 package 지정 없는 implicit broadcast 를 못 받으므로
+        // setPackage 로 명시 targeting 해야 한다.
+        sendBroadcast(Intent(ACTION_FINISH_RING).setPackage(packageName))
+
+        // 1회성 알람 자동 비활성화.
+        // 서비스가 중간에 죽었다가 DISMISS 인텐트로 재시작된 경우 currentAlarmId/currentRepeatDays 가
+        // 초기값으로 돌아가 있으므로, 인텐트의 EXTRA_ALARM_ID_ACTION 으로 보조 조회 후 DB 에서 직접 확인한다.
+        val fallbackId = intent?.getIntExtra(EXTRA_ALARM_ID_ACTION, -1) ?: -1
+        val idForCheck = if (currentAlarmId != -1) currentAlarmId else fallbackId
+        if (idForCheck != -1) {
+            // runBlocking 으로 DB 업데이트 완료 후 stopSelf() 호출해야 프로세스 종료 경쟁에서 누락되지 않는다.
             kotlinx.coroutines.runBlocking(Dispatchers.IO) {
-                AppDatabase.getInstance(applicationContext)
-                    .alarmDao()
-                    .setEnabled(currentAlarmId, false)
+                val dao = AppDatabase.getInstance(applicationContext).alarmDao()
+                val repeatDays = if (currentRepeatDays != -1) {
+                    currentRepeatDays
+                } else {
+                    dao.getAlarmById(idForCheck)?.repeatDays ?: -1
+                }
+                if (repeatDays == 0) dao.setEnabled(idForCheck, false)
             }
         }
 
@@ -243,14 +252,13 @@ sendBroadcast(Intent(ACTION_FINISH_RING).setPackage(packageName))
         vibrator?.cancel()
         wakeLock?.takeIf { it.isHeld }?.release()
 
-        // 5분 후 알람 재등록
+        // 5분 후 알람 재등록 — 사용자가 선택한 원본 알람음을 그대로 유지
         val snoozeMs = System.currentTimeMillis() + SNOOZE_DURATION_MS
         val snoozeIntent = Intent(this, AlarmReceiver::class.java).apply {
             putExtra(AlarmScheduler.EXTRA_ALARM_ID, alarmId)
             putExtra(AlarmScheduler.EXTRA_IS_MOVED, false)
             putExtra(AlarmScheduler.EXTRA_MOVED_REASON, "")
-            putExtra(AlarmScheduler.EXTRA_SOUND_URI,
-                ringtone?.let { "" } ?: "")  // 원래 소리 유지 어려우므로 기본음
+            putExtra(AlarmScheduler.EXTRA_SOUND_URI, currentSoundUri)
             // 1회성 알람 여부를 스누즈 후 재발동 시에도 유지해야 자동 비활성화가 동작함
             putExtra(AlarmScheduler.EXTRA_REPEAT_DAYS, currentRepeatDays)
         }
@@ -265,9 +273,7 @@ sendBroadcast(Intent(ACTION_FINISH_RING).setPackage(packageName))
             )
         } catch (_: SecurityException) {}
 
-        // RECEIVER_NOT_EXPORTED receiver(AlarmRingActivity)는 package 지정 없는
-// implicit broadcast를 받지 못하므로 setPackage로 명시 targeting 해야 한다.
-sendBroadcast(Intent(ACTION_FINISH_RING).setPackage(packageName))
+        sendBroadcast(Intent(ACTION_FINISH_RING).setPackage(packageName))
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
     }
