@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App -->
+    <string name="app_name">WeatherWake</string>
+
+    <!-- Alarm Setting Activity -->
+    <string name="toolbar_title_alarm_setting">알람 설정</string>
+    <string name="toolbar_subtitle_alarm_setting">1단계 · 시간 및 반복</string>
+    <string name="label_alarm_time">알람 시각</string>
+    <string name="label_repeat_days">반복 요일</string>
+    <string name="label_no_repeat">반복 없음</string>
+    <string name="label_alarm_name">알람 이름</string>
+    <string name="label_weather_linked_alarm">날씨 연동 알람</string>
+    <string name="label_weather_linked_description">비·눈 감지 시 자동으로 앞당김</string>
+    <string name="action_cancel">취소</string>
+    <string name="action_weather_setup">날씨 설정 →</string>
+    <string name="action_sound_setup">알람음 설정 →</string>
+
+    <!-- Day names -->
+    <string name="day_sun">일</string>
+    <string name="day_mon">월</string>
+    <string name="day_tue">화</string>
+    <string name="day_wed">수</string>
+    <string name="day_thu">목</string>
+    <string name="day_fri">금</string>
+    <string name="day_sat">토</string>
+
+    <!-- Repeat patterns -->
+    <string name="repeat_no_repeat">반복 없음</string>
+    <string name="repeat_weekdays">주중</string>
+    <string name="repeat_weekends">주말</string>
+    <string name="repeat_every_day">매일</string>
+    <string name="label_one_time_alarm">1회성 알람</string>
+
+    <!-- Alarm Ring Activity -->
+    <string name="action_snooze_5min">5분 더</string>
+    <string name="action_dismiss_alarm">알람 끄기</string>
+
+    <!-- Alarm List Item -->
+    <string name="label_weather_linked_on">날씨연동 ON</string>
+    <string name="label_weather_emoji_link">☔ 날씨 연동</string>
+    <string name="label_alarm_on_off">알람 ON/OFF</string>
+    <string name="action_delete">삭제</string>
+    <string name="switch_on">ON</string>
+    <string name="switch_off">OFF</string>
+    <string name="label_default_alarm_label">알람</string>
+
+    <!-- Sensitivity levels -->
+    <string name="sensitivity_very">아주민감</string>
+    <string name="sensitivity_sensitive">민감</string>
+    <string name="sensitivity_normal">보통</string>
+    <string name="sensitivity_low">둔감</string>
+
+    <!-- Advance minutes -->
+    <string name="advance_none">없음</string>
+    <string name="advance_one_hour">1시간</string>
+    <string name="advance_minutes_format">%d분</string>
+
+    <!-- Moved reason format -->
+    <string name="moved_reason_format">⏰ %1$s으로 앞당겨졌어요</string>
+
+    <!-- Location Setting Activity -->
+    <string name="label_current_location">현재 위치</string>
+    <string name="label_location_not_set">위치 미설정</string>
+    <string name="label_gps_auto_detect">GPS 자동 감지</string>
+    <string name="action_detect_location_now">지금 위치 감지하기</string>
+    <string name="label_select_city_manually">도시 직접 선택</string>
+    <string name="label_select_city_desc">GPS와 무관하게 특정 도시의 날씨를 고정할 수 있어요</string>
+    <string name="label_country_kr">대한민국</string>
+    <string name="label_country_us">미국</string>
+    <string name="label_country_gb">영국</string>
+    <string name="label_country_au">호주</string>
+    <string name="hint_select_region">시·도 선택</string>
+    <string name="hint_select_city">도시 선택</string>
+    <string name="action_set_selected_city">선택한 도시로 설정</string>
+    <string name="message_location_permission_required">위치 권한이 필요합니다.\n설정에서 허용해 주세요.</string>
+    <string name="message_detecting_location">위치 감지 중…</string>
+    <string name="message_location_set">현재 위치: %1$s</string>
+    <string name="message_could_not_get_location">위치를 가져올 수 없어요</string>
+    <string name="message_select_city">도시를 선택해 주세요</string>
+    <string name="label_location_no_permission">위치 권한 없음</string>
+    <string name="label_current_location_gps">현재 위치</string>
+
+    <!-- Main Activity -->
+    <string name="label_alarm_count_selected">%d개 선택됨</string>
+    <string name="message_delete_alarm_confirm">\'%1$s\' 알람을 삭제할까요?</string>
+    <string name="message_delete_alarms_confirm">선택한 %1$d개의 알람을 삭제할까요?</string>
+    <string name="action_delete_confirm">삭제</string>
+    <string name="message_location_set_to">위치를 설정해 주세요</string>
+    <string name="message_checking_weather">날씨 확인 중…</string>
+    <string name="message_weather_server_error">날씨 서버 오류 (%1$d)</string>
+    <string name="message_error_occurred">오류가 발생했어요</string>
+    <string name="message_overlay_permission_title">🔔 알람 표시 권한 필요</string>
+    <string name="message_overlay_permission_body">화면이 꺼진 상태에서도 알람을 띄우려면\n\'다른 앱 위에 표시\' 권한이 필요합니다.\n\n설정 화면이 열리면 WeatherWake를 허용해 주세요.</string>
+    <string name="action_allow_now">지금 허용하기</string>
+    <string name="action_allow_later">나중에</string>
+    <string name="message_full_screen_permission_title">⏰ 잠금화면 알람 권한 필요</string>
+    <string name="message_full_screen_permission_body">화면이 꺼진 상태에서 알람이 울릴 때 전체화면으로\n알람 끄기 화면을 표시하려면 권한이 필요합니다.\n\n설정 화면이 열리면 \'WeatherWake\'를 찾아\n\'전체 화면으로 표시\'를 허용해 주세요.</string>
+    <string name="message_exact_alarm_permission_title">알람 권한 필요</string>
+    <string name="message_exact_alarm_permission_body">정확한 시간에 알람을 울리려면 \'알람 및 리마인더\' 권한이 필요합니다.\n설정에서 허용해 주세요.</string>
+    <string name="action_open_settings">설정으로</string>
+    <string name="weather_attribution">Weather data by OpenWeatherMap</string>
+
+    <!-- Main Activity - Additional -->
+    <string name="label_alarm">알람</string>
+    <string name="action_add_alarm">알람 추가</string>
+    <string name="action_change_location">위치 변경</string>
+    <string name="action_refresh_weather">날씨 새로고침</string>
+    <string name="label_location_checking">위치 확인 중…</string>
+
+    <!-- Weather Rain/Snow Activity -->
+    <string name="toolbar_title_weather">날씨 설정</string>
+    <string name="toolbar_subtitle_rain">2단계 · ☔ 비 올 때</string>
+    <string name="toolbar_subtitle_snow">3단계 · ❄️ 눈 올 때</string>
+    <string name="label_how_early_wake">얼마나 일찍 깨울까요?</string>
+    <string name="label_rain_threshold_question">어느 정도 비부터 앞당길까요?</string>
+    <string name="label_snow_threshold_question">어느 정도 눈부터 앞당길까요?</string>
+    <string name="sensitivity_very_label">아주 민감하게</string>
+    <string name="sensitivity_very_desc">거의 안 느껴지는 안개비도 감지</string>
+    <string name="sensitivity_sensitive_label">민감하게</string>
+    <string name="sensitivity_sensitive_desc">우산 없이 걸으면 살짝 젖는 이슬비</string>
+    <string name="sensitivity_normal_recommended">보통  (권장)</string>
+    <string name="sensitivity_normal_desc">우산을 꺼내게 되는 확실한 비</string>
+    <string name="sensitivity_low_label">둔감하게</string>
+    <string name="sensitivity_low_desc">우산 써도 옷·신발이 젖는 강한 비</string>
+    <string name="label_threshold_0_1mm">0.1mm/h 이상</string>
+    <string name="label_threshold_0_5mm">0.5mm/h 이상</string>
+    <string name="label_threshold_1_0mm">1.0mm/h 이상</string>
+    <string name="label_threshold_3_0mm">3.0mm/h 이상</string>
+    <string name="label_threshold_snow_0_5cm">시간당 0.5cm 미만</string>
+    <string name="label_threshold_snow_1cm">시간당 1cm 미만</string>
+    <string name="label_threshold_snow_1_3cm">시간당 1~3cm</string>
+    <string name="label_threshold_snow_3cm">시간당 3cm 이상</string>
+    <string name="rain_desc_very">🌫 거의 안 느껴지는 안개비도 감지</string>
+    <string name="rain_desc_sensitive">💧 우산 없이 걸으면 살짝 젖는 이슬비</string>
+    <string name="rain_desc_normal">☂️ 우산을 꺼내게 되는 확실한 비</string>
+    <string name="rain_desc_low">🌧 우산 써도 옷·신발이 젖는 강한 비</string>
+    <string name="snow_desc_very">🌫 간신히 보이는 아주 가는 눈발도 감지</string>
+    <string name="snow_desc_sensitive">🌨 바닥엔 안 쌓이고 공중에 흩날리는 눈</string>
+    <string name="snow_desc_normal">⛄ 도로·차 위가 하얗게 덮이기 시작하는 눈</string>
+    <string name="snow_desc_low">🌨💨 발목 이상 쌓이고 교통이 느려지는 폭설</string>
+    <string name="label_owm_weather_info">ℹ️ 날씨는 매일 알람 시각 90분 전 기준으로\nOpenWeatherMap(OWM) Current Weather에서 체크되어 반영됩니다.</string>
+    <string name="action_back">이전</string>
+    <string name="action_snow_setup">눈 설정 →</string>
+    <string name="action_done">선택 완료</string>
+
+    <!-- Sound Picker Activity -->
+    <string name="toolbar_title_sound_picker">알람음 선택</string>
+    <string name="toolbar_subtitle_sound_picker">2단계 · 소리 고르기</string>
+    <string name="message_no_sounds_available">이 기기에서 사용 가능한\n알람음이 없습니다.</string>
+    <string name="desc_preview">미리듣기</string>
+
+    <!-- Sound Category -->
+    <string name="sound_category_loud">🔊 시끄러운</string>
+    <string name="sound_category_normal">🔔 일반</string>
+    <string name="sound_category_calm">🌙 잔잔한</string>
+    <string name="sound_fallback_name_format">알람 %1$d</string>
+
+    <!-- Default labels -->
+    <string name="label_default_alarm_sound">기본 알람음</string>
+
+    <!-- Notification -->
+    <string name="notification_alarm_ringing">알람이 울립니다</string>
+    <string name="notification_alarm_ending">알람 종료 중…</string>
+    <string name="notification_channel_name">알람</string>
+    <string name="notification_channel_desc">WeatherWake 알람 알림</string>
+
+    <!-- Messages -->
+    <string name="message_woke_earlier">%1$s\n더 일찍 깨웠어요 ⏰</string>
+    <string name="action_dismiss">끄기</string>
+
+    <!-- Moved reason -->
+    <string name="moved_reason_rain">비</string>
+    <string name="moved_reason_snow">눈</string>
+
+    <!-- Advance options -->
+    <string name="advance_15min">15분</string>
+    <string name="advance_30min">30분</string>
+    <string name="advance_45min">45분</string>
+
+    <!-- Brand (한국어에서도 "Built by"는 영문으로 통일 — 브랜드 일관성) -->
+    <string name="brand_built_by">Built by</string>
+    <string name="brand_name_prefix" translatable="false">DevKorea</string>
+    <string name="brand_name_accent" translatable="false">1m</string>
+    <string name="brand_url" translatable="false">https://devkorea1m.com</string>
+</resources>

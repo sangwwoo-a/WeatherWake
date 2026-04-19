@@ -2,26 +2,30 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
     <uses-permission android:name="android.permission.USE_EXACT_ALARM"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
 
     <application
+        android:name=".WeatherWakeApp"
         android:allowBackup="true"
-        android:icon="@drawable/ic_launcher"
+        android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:roundIcon="@drawable/ic_launcher_round"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.WeatherWake">
+        android:theme="@style/Theme.WeatherWake"
+        android:resizeableActivity="true">
 
         <activity android:name=".MainActivity"
-            android:exported="true"
-            android:screenOrientation="portrait">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -29,24 +33,37 @@
         </activity>
 
         <activity android:name=".AlarmSettingActivity"
-            android:exported="false"
-            android:screenOrientation="portrait"/>
+            android:exported="false"/>
 
         <activity android:name=".LocationSettingActivity"
-            android:exported="false"
-            android:screenOrientation="portrait"/>
+            android:exported="false"/>
 
         <activity android:name=".AlarmRingActivity"
             android:exported="false"
-            android:screenOrientation="portrait"
+            android:launchMode="singleTop"
             android:showOnLockScreen="true"
             android:turnScreenOn="true"
+            android:excludeFromRecents="true"
             android:theme="@style/Theme.WeatherWake.AlarmRing"/>
+
+        <!-- 알람 끄기/스누즈 브로드캐스트 (알림 액션 버튼용) -->
+        <receiver android:name=".AlarmActionReceiver"
+            android:exported="false"/>
 
         <!-- 알람음 선택 화면 -->
         <activity android:name=".sound.SoundPickerActivity"
+            android:exported="false"/>
+
+        <!-- 날씨 민감도 설정 화면 (2단계: 비, 3단계: 눈) -->
+        <activity android:name=".weather.WeatherRainActivity"
+            android:exported="false"/>
+        <activity android:name=".weather.WeatherSnowActivity"
+            android:exported="false"/>
+
+        <!-- 알람 소리/진동 + 전체화면 알림을 담당하는 Foreground Service -->
+        <service android:name=".AlarmService"
             android:exported="false"
-            android:screenOrientation="portrait"/>
+            android:foregroundServiceType="mediaPlayback"/>
 
         <!-- AlarmManager 브로드캐스트 수신 -->
         <receiver android:name=".AlarmReceiver"

@@ -9,9 +9,15 @@ import com.devkorea1m.weatherwake.databinding.ItemSoundBinding
 class SoundListAdapter(
     private val context: Context,
     private val sounds: List<AlarmSound>,
-    private var selectedUri: String,
+    selectedUri: String,
     private val onSelect: (AlarmSound) -> Unit
 ) : RecyclerView.Adapter<SoundListAdapter.VH>() {
+
+    // 선택된 position 추적 (전체 갱신 없이 해당 셀만 업데이트)
+    private var selectedPos: Int = sounds.indexOfFirst { it.id == selectedUri }
+
+    // 현재 재생 중인 position 추적
+    private var playingPos: Int = -1
 
     inner class VH(val b: ItemSoundBinding) : RecyclerView.ViewHolder(b.root)
 
@@ -23,38 +29,58 @@ class SoundListAdapter(
     override fun onBindViewHolder(holder: VH, position: Int) {
         val sound = sounds[position]
         holder.b.tvSoundName.text   = sound.name
-        holder.b.radioBtn.isChecked = sound.id == selectedUri
-
-        val isPlaying = PreviewPlayer.currentId == sound.id
+        holder.b.radioBtn.isChecked = position == selectedPos
         holder.b.btnPreview.setImageResource(
-            if (isPlaying) android.R.drawable.ic_media_pause
-            else           android.R.drawable.ic_media_play
+            if (position == playingPos) android.R.drawable.ic_media_pause
+            else                        android.R.drawable.ic_media_play
         )
 
         // 행 클릭 → 선택
         holder.itemView.setOnClickListener {
-            selectedUri = sound.id
-            notifyDataSetChanged()
+            val prev = selectedPos
+            selectedPos = position
+            if (prev != -1) notifyItemChanged(prev)   // 이전 선택 해제
+            notifyItemChanged(position)                // 새 선택 표시
+
             onSelect(sound)
-            PreviewPlayer.stop()
+            stopPreviewInternal()
         }
 
-        // 미리듣기 버튼 → 전역 플레이어로 재생/정지 토글
+        // 미리듣기 버튼 → 재생/정지 토글
         holder.b.btnPreview.setOnClickListener {
-            PreviewPlayer.toggle(
+            val playing = PreviewPlayer.toggle(
                 context = context,
                 sound   = sound,
-                onStop  = { notifyDataSetChanged() }   // 재생 완료 시 아이콘 갱신
+                onStop  = { onPreviewStop() }
             )
-            notifyDataSetChanged()  // 재생 시작/정지 즉시 아이콘 갱신
+            val prev = playingPos
+            playingPos = if (playing) position else -1
+            if (prev != -1) notifyItemChanged(prev)   // 이전 재생 아이콘 갱신
+            notifyItemChanged(position)                // 현재 아이콘 갱신
         }
     }
 
-    /** 탭 전환 등 외부에서 중단이 필요할 때 호출 — 이 어댑터가 재생 중이면 멈춤 */
+    /** PreviewPlayer 재생 완료 콜백 */
+    private fun onPreviewStop() {
+        val prev = playingPos
+        playingPos = -1
+        if (prev != -1) notifyItemChanged(prev)
+    }
+
+    /** 탭 전환 등 외부에서 중단 요청 */
     fun stopIfPlaying() {
         if (sounds.any { it.id == PreviewPlayer.currentId }) {
             PreviewPlayer.stop()
-            notifyDataSetChanged()
+            val prev = playingPos
+            playingPos = -1
+            if (prev != -1) notifyItemChanged(prev)
         }
+    }
+
+    private fun stopPreviewInternal() {
+        val prev = playingPos
+        playingPos = -1
+        PreviewPlayer.stop()
+        if (prev != -1) notifyItemChanged(prev)
     }
 }

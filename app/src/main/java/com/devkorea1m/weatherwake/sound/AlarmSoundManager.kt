@@ -75,7 +75,7 @@ object AlarmSoundManager {
             while (cursor.moveToNext()) {
                 val id  = cursor.getString(RingtoneManager.ID_COLUMN_INDEX)
                 val uri = mgr.getRingtoneUri(cursor.position)
-                val name = cursor.getString(RingtoneManager.TITLE_COLUMN_INDEX) ?: "알람 $id"
+                val name = cursor.getString(RingtoneManager.TITLE_COLUMN_INDEX) ?: context.getString(com.devkorea1m.weatherwake.R.string.sound_fallback_name_format, id.toIntOrNull() ?: 0)
                 result.add(
                     AlarmSound(
                         id       = uri.toString(),
@@ -116,11 +116,11 @@ object AlarmSoundManager {
         val target = 10
         // LOUD 보충
         while (loudList.size < target && unassigned.isNotEmpty()) {
-            loudList.add(unassigned.removeFirst().copy(category = SoundCategory.LOUD))
+            loudList.add(unassigned.removeAt(0).copy(category = SoundCategory.LOUD))
         }
         // CALM 보충 (뒤쪽에서)
         while (calmList.size < target && unassigned.isNotEmpty()) {
-            calmList.add(unassigned.removeLast().copy(category = SoundCategory.CALM))
+            calmList.add(unassigned.removeAt(unassigned.lastIndex).copy(category = SoundCategory.CALM))
         }
         // 나머지 → NORMAL
         normalList.addAll(unassigned.map { it.copy(category = SoundCategory.NORMAL) })

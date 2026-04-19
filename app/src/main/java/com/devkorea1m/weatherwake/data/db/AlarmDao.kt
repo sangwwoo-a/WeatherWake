@@ -29,4 +29,7 @@ interface AlarmDao {
 
     @Query("UPDATE alarms SET isMoved = :moved, movedReason = :reason WHERE id = :id")
     suspend fun setMoved(id: Int, moved: Boolean, reason: String)
+
+    @Query("DELETE FROM alarms WHERE id IN (:ids)")
+    suspend fun deleteByIds(ids: List<Int>)
 }

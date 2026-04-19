@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_deep"
-    android:fitsSystemWindows="true">
+    android:orientation="vertical"
+    android:background="@color/bg_deep">
 
     <!-- 상단 앱바 -->
     <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appBarSetting"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/bg_deep"
@@ -19,8 +18,8 @@
             android:id="@+id/toolbarSetting"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="알람 설정"
-            app:subtitle="1단계 · 시간 및 옵션"
+            app:title="@string/toolbar_title_alarm_setting"
+            app:subtitle="@string/toolbar_subtitle_alarm_setting"
             app:titleTextColor="@color/text_primary"
             app:subtitleTextColor="@color/text_secondary"
             app:navigationIcon="@drawable/ic_back"
@@ -28,108 +27,208 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- 스크롤 본문 -->
-    <androidx.core.widget.NestedScrollView
+    <!-- 본문 (스크롤 없음) -->
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:paddingHorizontal="20dp"
+        android:paddingTop="8dp">
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <!-- 시각 피커 -->
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="20dp"
-            android:paddingBottom="120dp">
+            android:text="@string/label_alarm_time"
+            android:textSize="12sp"
+            android:textColor="@color/text_secondary"
+            android:layout_marginBottom="4dp"/>
 
-            <!-- 시각 피커 -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="알람 시각"
-                android:textSize="12sp"
-                android:textColor="@color/text_secondary"
-                android:layout_marginBottom="8dp"/>
+        <!-- TimePicker 높이 제한 -->
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="160dp"
+            android:layout_gravity="center_horizontal"
+            android:clipChildren="true"
+            android:clipToPadding="true">
 
             <TimePicker android:id="@+id/timePicker"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:timePickerMode="spinner"
-                android:layout_gravity="center_horizontal"/>
+                android:layout_gravity="center"/>
 
-            <!-- 구분선 -->
-            <View android:layout_width="match_parent" android:layout_height="1dp"
-                android:background="@color/outline" android:layout_marginVertical="20dp"/>
+        </FrameLayout>
 
-            <!-- 알람 이름 -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
+        <!-- 구분선 -->
+        <View android:layout_width="match_parent" android:layout_height="1dp"
+            android:background="@color/outline" android:layout_marginVertical="12dp"/>
+
+        <!-- 반복 요일 헤더 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:hint="알람 이름"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etLabel"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/text_primary"
-                    android:inputType="text"/>
-            </com.google.android.material.textfield.TextInputLayout>
+                android:layout_weight="1"
+                android:text="@string/label_repeat_days"
+                android:textSize="12sp"
+                android:textColor="@color/text_secondary"/>
 
-            <!-- 구분선 -->
-            <View android:layout_width="match_parent" android:layout_height="1dp"
-                android:background="@color/outline" android:layout_marginVertical="20dp"/>
-
-            <!-- 날씨 연동 -->
-            <LinearLayout android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
-                    android:layout_weight="1" android:orientation="vertical">
-                    <TextView android:text="날씨 연동 알람"
-                        android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:textSize="15sp" android:textColor="@color/text_primary"/>
-                    <TextView android:text="비·눈 감지 시 자동으로 앞당김"
-                        android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:textSize="12sp" android:textColor="@color/text_secondary"
-                        android:layout_marginTop="2dp"/>
-                </LinearLayout>
-
-                <com.google.android.material.materialswitch.MaterialSwitch
-                    android:id="@+id/switchWeather"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checked="true"/>
-            </LinearLayout>
-
-            <!-- 비 앞당김 -->
-            <TextView android:text="☔  비 올 때 앞당기기"
-                android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:textSize="13sp" android:textColor="@color/text_secondary"
-                android:layout_marginTop="20dp" android:layout_marginBottom="6dp"/>
-
-            <Spinner android:id="@+id/spinnerRainAdvance"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-
-            <!-- 눈 앞당김 -->
-            <TextView android:text="❄️  눈 올 때 앞당기기"
-                android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:textSize="13sp" android:textColor="@color/text_secondary"
-                android:layout_marginTop="16dp" android:layout_marginBottom="6dp"/>
-
-            <Spinner android:id="@+id/spinnerSnowAdvance"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipNoRepeat"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:text="@string/label_no_repeat"
+                android:textSize="12sp"
+                android:textColor="@color/chip_day_text"
+                app:chipCornerRadius="50dp"
+                app:chipBackgroundColor="@color/chip_no_repeat_bg"
+                app:chipStrokeColor="@color/chip_no_repeat_stroke"
+                app:chipStrokeWidth="1dp"
+                app:checkedIcon="@null"
+                app:ensureMinTouchTargetSize="false"/>
 
         </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
+
+        <!-- 요일 버튼 -->
+        <LinearLayout
+            android:id="@+id/chipGroupDays"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:gravity="center">
+                <ToggleButton android:id="@+id/chipSun"
+                    android:layout_width="40dp" android:layout_height="40dp"
+                    android:textOn="@string/day_sun" android:textOff="@string/day_sun"
+                    android:textSize="13sp" android:textColor="@color/chip_day_text"
+                    android:background="@drawable/bg_day_button"
+                    android:gravity="center" android:stateListAnimator="@null"/>
+            </LinearLayout>
+
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:gravity="center">
+                <ToggleButton android:id="@+id/chipMon"
+                    android:layout_width="40dp" android:layout_height="40dp"
+                    android:textOn="@string/day_mon" android:textOff="@string/day_mon"
+                    android:textSize="13sp" android:textColor="@color/chip_day_text"
+                    android:background="@drawable/bg_day_button"
+                    android:gravity="center" android:stateListAnimator="@null"/>
+            </LinearLayout>
+
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:gravity="center">
+                <ToggleButton android:id="@+id/chipTue"
+                    android:layout_width="40dp" android:layout_height="40dp"
+                    android:textOn="@string/day_tue" android:textOff="@string/day_tue"
+                    android:textSize="13sp" android:textColor="@color/chip_day_text"
+                    android:background="@drawable/bg_day_button"
+                    android:gravity="center" android:stateListAnimator="@null"/>
+            </LinearLayout>
+
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:gravity="center">
+                <ToggleButton android:id="@+id/chipWed"
+                    android:layout_width="40dp" android:layout_height="40dp"
+                    android:textOn="@string/day_wed" android:textOff="@string/day_wed"
+                    android:textSize="13sp" android:textColor="@color/chip_day_text"
+                    android:background="@drawable/bg_day_button"
+                    android:gravity="center" android:stateListAnimator="@null"/>
+            </LinearLayout>
+
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:gravity="center">
+                <ToggleButton android:id="@+id/chipThu"
+                    android:layout_width="40dp" android:layout_height="40dp"
+                    android:textOn="@string/day_thu" android:textOff="@string/day_thu"
+                    android:textSize="13sp" android:textColor="@color/chip_day_text"
+                    android:background="@drawable/bg_day_button"
+                    android:gravity="center" android:stateListAnimator="@null"/>
+            </LinearLayout>
+
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:gravity="center">
+                <ToggleButton android:id="@+id/chipFri"
+                    android:layout_width="40dp" android:layout_height="40dp"
+                    android:textOn="@string/day_fri" android:textOff="@string/day_fri"
+                    android:textSize="13sp" android:textColor="@color/chip_day_text"
+                    android:background="@drawable/bg_day_button"
+                    android:gravity="center" android:stateListAnimator="@null"/>
+            </LinearLayout>
+
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:gravity="center">
+                <ToggleButton android:id="@+id/chipSat"
+                    android:layout_width="40dp" android:layout_height="40dp"
+                    android:textOn="@string/day_sat" android:textOff="@string/day_sat"
+                    android:textSize="13sp" android:textColor="@color/chip_day_text"
+                    android:background="@drawable/bg_day_button"
+                    android:gravity="center" android:stateListAnimator="@null"/>
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- 구분선 -->
+        <View android:layout_width="match_parent" android:layout_height="1dp"
+            android:background="@color/outline" android:layout_marginVertical="12dp"/>
+
+        <!-- 알람 이름 -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/label_alarm_name"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_primary"
+                android:inputType="text"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- 구분선 -->
+        <View android:layout_width="match_parent" android:layout_height="1dp"
+            android:background="@color/outline" android:layout_marginVertical="12dp"/>
+
+        <!-- 날씨 연동 -->
+        <LinearLayout android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:orientation="vertical">
+                <TextView android:text="@string/label_weather_linked_alarm"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:textSize="15sp" android:textColor="@color/text_primary"/>
+                <TextView android:text="@string/label_weather_linked_description"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:textSize="12sp" android:textColor="@color/text_secondary"
+                    android:layout_marginTop="2dp"/>
+            </LinearLayout>
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/switchWeather"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"/>
+        </LinearLayout>
+
+    </LinearLayout>
 
     <!-- 하단 고정 버튼 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
         android:orientation="horizontal"
         android:background="@color/bg_deep"
         android:paddingHorizontal="16dp"
@@ -142,7 +241,7 @@
             android:layout_width="0dp"
             android:layout_height="52dp"
             android:layout_weight="1"
-            android:text="취소"
+            android:text="@string/action_cancel"
             android:layout_marginEnd="8dp"
             app:strokeColor="@color/outline"
             android:textColor="@color/text_secondary"/>
@@ -152,10 +251,10 @@
             android:layout_width="0dp"
             android:layout_height="52dp"
             android:layout_weight="2"
-            android:text="알람음 설정 →"
+            android:text="@string/action_weather_setup"
             app:backgroundTint="@color/primary_blue"
             android:textColor="@color/bg_deep"/>
 
     </LinearLayout>
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</LinearLayout>

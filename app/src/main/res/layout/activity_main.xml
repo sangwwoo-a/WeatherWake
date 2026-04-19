@@ -4,8 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_deep"
-    android:fitsSystemWindows="true">
+    android:background="@color/bg_deep">
 
     <!-- 상단 앱바 -->
     <com.google.android.material.appbar.AppBarLayout
@@ -19,17 +18,53 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:paddingHorizontal="8dp"
-            app:title="WeatherWake"
-            app:titleTextColor="@color/text_primary"
-            app:titleTextAppearance="@style/TextAppearance.Material3.TitleLarge"/>
+            android:paddingStart="20dp"
+            android:paddingEnd="16dp"
+            app:contentInsetStart="0dp"
+            app:contentInsetStartWithNavigation="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="WeatherWake"
+                    android:textColor="@color/text_primary"
+                    android:textAppearance="@style/TextAppearance.Material3.TitleLarge"/>
+
+                <!-- ── DevKorea1m 브랜드 워터마크 ─────────────── -->
+                <TextView
+                    android:id="@+id/tvBrandWatermark"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minHeight="44dp"
+                    android:minWidth="44dp"
+                    android:gravity="center"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="6dp"
+                    android:textSize="11sp"
+                    android:letterSpacing="0.04"
+                    android:fontFamily="sans-serif-medium"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:contentDescription="DevKorea1m — visit devkorea1m.com"/>
+
+            </LinearLayout>
+
+        </com.google.android.material.appbar.MaterialToolbar>
 
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true"
+        android:scrollbars="vertical"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
@@ -63,20 +98,45 @@
                         android:textSize="12sp"
                         android:textColor="@color/text_secondary"
                         android:letterSpacing="0.08"
-                        android:text="위치 확인 중…"
+                        android:text="@string/label_location_checking"
                         app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="@id/btnLocation"
                         app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/btnRefreshWeather"/>
+
+                    <!-- 날씨 새로고침 버튼 (아이콘 전용) -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnRefreshWeather"
+                        style="@style/Widget.Material3.Button.IconButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:minWidth="40dp"
+                        android:minHeight="40dp"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        android:contentDescription="@string/action_refresh_weather"
+                        app:icon="@android:drawable/ic_popup_sync"
+                        app:iconTint="@color/primary_blue"
+                        app:iconSize="18dp"
+                        app:iconGravity="textStart"
+                        app:iconPadding="0dp"
+                        app:layout_constraintTop_toTopOf="@id/btnLocation"
+                        app:layout_constraintBottom_toBottomOf="@id/btnLocation"
                         app:layout_constraintEnd_toStartOf="@id/btnLocation"/>
 
                     <!-- 위치 변경 버튼 -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnLocation"
-                        style="@style/Widget.Material3.Button.TextButton"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="위치 변경"
-                        android:textSize="11sp"
+                        android:text="@string/action_change_location"
+                        android:textSize="13sp"
                         android:textColor="@color/primary_blue"
+                        app:icon="@android:drawable/ic_menu_mylocation"
+                        app:iconTint="@color/primary_blue"
+                        app:iconSize="16dp"
+                        app:strokeColor="@color/primary_blue"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"/>
 
@@ -112,6 +172,21 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"/>
 
+                    <!-- OpenWeatherMap Attribution (약관 준수) -->
+                    <TextView android:id="@+id/tvWeatherAttribution"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Weather data by OpenWeatherMap"
+                        android:textSize="10sp"
+                        android:textColor="@color/text_hint"
+                        android:layout_marginTop="10dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:paddingVertical="2dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        app:layout_constraintTop_toBottomOf="@id/tvWeatherStatus"
+                        app:layout_constraintEnd_toEndOf="parent"/>
+
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.cardview.widget.CardView>
 
@@ -129,7 +204,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="알람"
+                    android:text="@string/label_alarm"
                     android:textSize="18sp"
                     android:textStyle="bold"
                     android:textColor="@color/text_primary"/>
@@ -156,10 +231,43 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="20dp"
-        android:text="알람 추가"
+        android:text="@string/action_add_alarm"
         android:textColor="@color/bg_deep"
         app:backgroundTint="@color/primary_blue"
         app:icon="@android:drawable/ic_menu_add"
         app:iconTint="@color/bg_deep"/>
+
+    <!-- 다중선택 모드 하단 액션바 (선택 모드 진입 시에만 표시) -->
+    <LinearLayout
+        android:id="@+id/selectionBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="20dp"
+        android:paddingVertical="14dp"
+        android:background="@color/bg_card"
+        android:elevation="8dp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/tvSelectionCount"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="16sp"
+            android:textColor="@color/text_primary"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnDeleteSelected"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/action_delete"
+            android:textColor="@color/text_secondary"
+            app:rippleColor="@color/outline"/>
+
+    </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

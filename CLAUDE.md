@@ -1,0 +1,1 @@
+모든 작업 결과물은 "C:\Users\sangw\OneDrive\바탕 화면\Devkorea1m브랜드팀"에 정리해서 저장

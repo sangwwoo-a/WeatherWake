@@ -1,4 +1,186 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- App -->
     <string name="app_name">WeatherWake</string>
+
+    <!-- Alarm Setting Activity -->
+    <string name="toolbar_title_alarm_setting">Alarm Settings</string>
+    <string name="toolbar_subtitle_alarm_setting">Step 1 · Time and Repeat</string>
+    <string name="label_alarm_time">Alarm Time</string>
+    <string name="label_repeat_days">Repeat Days</string>
+    <string name="label_no_repeat">No repeat</string>
+    <string name="label_alarm_name">Alarm Name</string>
+    <string name="label_weather_linked_alarm">Weather-linked Alarm</string>
+    <string name="label_weather_linked_description">Auto-advance when rain/snow detected</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_weather_setup">Weather setup →</string>
+    <string name="action_sound_setup">Sound setup →</string>
+
+    <!-- Day names -->
+    <string name="day_sun">S</string>
+    <string name="day_mon">M</string>
+    <string name="day_tue">T</string>
+    <string name="day_wed">W</string>
+    <string name="day_thu">T</string>
+    <string name="day_fri">F</string>
+    <string name="day_sat">S</string>
+
+    <!-- Repeat patterns -->
+    <string name="repeat_no_repeat">No repeat</string>
+    <string name="repeat_weekdays">Weekdays</string>
+    <string name="repeat_weekends">Weekends</string>
+    <string name="repeat_every_day">Every day</string>
+    <string name="label_one_time_alarm">One-time alarm</string>
+
+    <!-- Alarm Ring Activity -->
+    <string name="action_snooze_5min">5 min more</string>
+    <string name="action_dismiss_alarm">Turn off alarm</string>
+
+    <!-- Alarm List Item -->
+    <string name="label_weather_linked_on">Weather ON</string>
+    <string name="label_weather_emoji_link">☔ Weather</string>
+    <string name="label_alarm_on_off">Alarm ON/OFF</string>
+    <string name="action_delete">Delete</string>
+    <string name="switch_on">ON</string>
+    <string name="switch_off">OFF</string>
+    <string name="label_default_alarm_label">Alarm</string>
+
+    <!-- Sensitivity levels -->
+    <string name="sensitivity_very">Very sensitive</string>
+    <string name="sensitivity_sensitive">Sensitive</string>
+    <string name="sensitivity_normal">Normal</string>
+    <string name="sensitivity_low">Low</string>
+
+    <!-- Advance minutes -->
+    <string name="advance_none">None</string>
+    <string name="advance_one_hour">1 hour</string>
+    <string name="advance_minutes_format">%d min</string>
+
+    <!-- Moved reason format -->
+    <string name="moved_reason_format">⏰ Moved earlier due to %1$s</string>
+
+    <!-- Location Setting Activity -->
+    <string name="label_current_location">Current Location</string>
+    <string name="label_location_not_set">Location not set</string>
+    <string name="label_gps_auto_detect">GPS Auto-detect</string>
+    <string name="action_detect_location_now">Detect location now</string>
+    <string name="label_select_city_manually">Select City Manually</string>
+    <string name="label_select_city_desc">You can fix a specific city\'s weather regardless of GPS</string>
+    <string name="label_country_kr">Korea</string>
+    <string name="label_country_us">United States</string>
+    <string name="label_country_gb">United Kingdom</string>
+    <string name="label_country_au">Australia</string>
+    <string name="hint_select_region">Select region</string>
+    <string name="hint_select_city">Select city</string>
+    <string name="action_set_selected_city">Set selected city</string>
+    <string name="message_location_permission_required">Location permission required.\nPlease allow it in Settings.</string>
+    <string name="message_detecting_location">Detecting location…</string>
+    <string name="message_location_set">Location set to %1$s</string>
+    <string name="message_could_not_get_location">Couldn\'t get location</string>
+    <string name="message_select_city">Please select a city</string>
+    <string name="label_location_no_permission">No location permission</string>
+    <string name="label_current_location_gps">Current Location</string>
+
+    <!-- Main Activity -->
+    <string name="label_alarm_count_selected">%d selected</string>
+    <string name="message_delete_alarm_confirm">Delete \'%1$s\' alarm?</string>
+    <string name="message_delete_alarms_confirm">Delete %1$d selected alarms?</string>
+    <string name="action_delete_confirm">Delete</string>
+    <string name="message_location_set_to">Please set a location</string>
+    <string name="message_checking_weather">Checking weather…</string>
+    <string name="message_weather_server_error">Weather server error (%1$d)</string>
+    <string name="message_error_occurred">An error occurred</string>
+    <string name="message_overlay_permission_title">🔔 Alarm Display Permission Required</string>
+    <string name="message_overlay_permission_body">To show alarms even when the screen is off,\nwe need the \'Display over other apps\' permission.\n\nWhen the settings screen opens, please allow WeatherWake.</string>
+    <string name="action_allow_now">Allow Now</string>
+    <string name="action_allow_later">Later</string>
+    <string name="message_full_screen_permission_title">⏰ Lock Screen Alarm Permission Required</string>
+    <string name="message_full_screen_permission_body">To display the alarm screen full-screen when the screen is off,\nwe need permission.\n\nWhen the settings screen opens, find \'WeatherWake\'\nand allow \'Display full screen\'.</string>
+    <string name="message_exact_alarm_permission_title">Alarm Permission Required</string>
+    <string name="message_exact_alarm_permission_body">To ring the alarm at the exact time, the \'Schedule Alarms and Reminders\' permission is required.\nPlease allow it in Settings.</string>
+    <string name="action_open_settings">Go to Settings</string>
+    <string name="weather_attribution">Weather data by OpenWeatherMap</string>
+
+    <!-- Main Activity - Additional -->
+    <string name="label_alarm">Alarm</string>
+    <string name="action_add_alarm">Add Alarm</string>
+    <string name="action_change_location">Change Location</string>
+    <string name="action_refresh_weather">Refresh weather</string>
+    <string name="label_location_checking">Checking location…</string>
+
+    <!-- Weather Rain/Snow Activity -->
+    <string name="toolbar_title_weather">Weather Settings</string>
+    <string name="toolbar_subtitle_rain">Step 2 · ☔ When raining</string>
+    <string name="toolbar_subtitle_snow">Step 3 · ❄️ When snowing</string>
+    <string name="label_how_early_wake">How early should we wake you?</string>
+    <string name="label_rain_threshold_question">Advance from how much rain?</string>
+    <string name="label_snow_threshold_question">Advance from how much snow?</string>
+    <string name="sensitivity_very_label">Very sensitive</string>
+    <string name="sensitivity_very_desc">Detects almost imperceptible mist</string>
+    <string name="sensitivity_sensitive_label">Sensitive</string>
+    <string name="sensitivity_sensitive_desc">Light rain that wets without umbrella</string>
+    <string name="sensitivity_normal_recommended">Normal (recommended)</string>
+    <string name="sensitivity_normal_desc">Definite rain that makes umbrella necessary</string>
+    <string name="sensitivity_low_label">Low sensitivity</string>
+    <string name="sensitivity_low_desc">Heavy rain that soaks clothes and shoes</string>
+    <string name="label_threshold_0_1mm">0.1mm/h or more</string>
+    <string name="label_threshold_0_5mm">0.5mm/h or more</string>
+    <string name="label_threshold_1_0mm">1.0mm/h or more</string>
+    <string name="label_threshold_3_0mm">3.0mm/h or more</string>
+    <string name="label_threshold_snow_0_5cm">Less than 0.5cm per hour</string>
+    <string name="label_threshold_snow_1cm">Less than 1cm per hour</string>
+    <string name="label_threshold_snow_1_3cm">1-3cm per hour</string>
+    <string name="label_threshold_snow_3cm">3cm or more per hour</string>
+    <string name="rain_desc_very">🌫 Detects almost imperceptible mist</string>
+    <string name="rain_desc_sensitive">💧 Light drizzle that wets without umbrella</string>
+    <string name="rain_desc_normal">☂️ Definite rain that makes umbrella necessary</string>
+    <string name="rain_desc_low">🌧 Heavy rain that soaks clothes and shoes</string>
+    <string name="snow_desc_very">🌫 Detects barely visible snow flurries</string>
+    <string name="snow_desc_sensitive">🌨 Snow that doesn\'t accumulate on ground</string>
+    <string name="snow_desc_normal">⛄ Snow that starts covering roads and cars</string>
+    <string name="snow_desc_low">🌨💨 Blizzard that piles ankle-high and slows traffic</string>
+    <string name="label_owm_weather_info">ℹ️ Weather is checked 90 minutes before each alarm\nvia OpenWeatherMap (OWM) Current Weather API.</string>
+    <string name="action_back">Back</string>
+    <string name="action_snow_setup">Snow setup →</string>
+    <string name="action_done">Done</string>
+
+    <!-- Sound Picker Activity -->
+    <string name="toolbar_title_sound_picker">Choose Alarm Sound</string>
+    <string name="toolbar_subtitle_sound_picker">Step 2 · Pick a sound</string>
+    <string name="message_no_sounds_available">No alarm sounds available\non this device.</string>
+    <string name="desc_preview">Preview</string>
+
+    <!-- Sound Category -->
+    <string name="sound_category_loud">🔊 Loud</string>
+    <string name="sound_category_normal">🔔 Normal</string>
+    <string name="sound_category_calm">🌙 Calm</string>
+    <string name="sound_fallback_name_format">Alarm %1$d</string>
+
+    <!-- Default labels -->
+    <string name="label_default_alarm_sound">Default alarm sound</string>
+
+    <!-- Notification -->
+    <string name="notification_alarm_ringing">Alarm ringing</string>
+    <string name="notification_alarm_ending">Ending alarm…</string>
+    <string name="notification_channel_name">Alarm</string>
+    <string name="notification_channel_desc">WeatherWake alarm notifications</string>
+
+    <!-- Messages -->
+    <string name="message_woke_earlier">%1$s\nWoke you earlier ⏰</string>
+    <string name="action_dismiss">Turn off</string>
+
+    <!-- Moved reason -->
+    <string name="moved_reason_rain">rain</string>
+    <string name="moved_reason_snow">snow</string>
+
+    <!-- Advance options -->
+    <string name="advance_15min">15 min</string>
+    <string name="advance_30min">30 min</string>
+    <string name="advance_45min">45 min</string>
+
+    <!-- Brand (not localized — brand mark fixed across locales) -->
+    <string name="brand_built_by">Built by</string>
+    <string name="brand_name_prefix" translatable="false">DevKorea</string>
+    <string name="brand_name_accent" translatable="false">1m</string>
+    <string name="brand_url" translatable="false">https://devkorea1m.com</string>
 </resources>

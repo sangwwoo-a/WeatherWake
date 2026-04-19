@@ -19,6 +19,8 @@ import androidx.room.PrimaryKey
  * @param movedReason     앞당겨진 날씨 이유 (알람 화면 표시용)
  * @param soundUri        선택한 알람음 URI (빈 문자열 = 기본 알람음)
  * @param soundName       선택한 알람음 이름 (설정 화면 표시용)
+ * @param rainSensitivity 비 민감도 (0=아주민감 0.3mm/h, 1=민감 0.5mm/h, 2=보통 2.5mm/h, 3=둔감 7.6mm/h)
+ * @param snowSensitivity 눈 민감도 (0=아주민감 0.5cm/h미만, 1=민감 1cm/h미만, 2=보통 1~3cm/h, 3=둔감 3cm/h이상)
  */
 @Entity(tableName = "alarms")
 data class AlarmEntity(
@@ -26,13 +28,15 @@ data class AlarmEntity(
     val hour: Int,
     val minute: Int,
     val repeatDays: Int = 0b1111111,   // 기본: 매일
-    val label: String = "출근 알람",
+    val label: String = "",            // 빈 문자열 기본값, 표시 시 리소스 사용
     val isEnabled: Boolean = true,
     val weatherTrigger: Boolean = true,
     val rainAdvanceMin: Int = 30,
     val snowAdvanceMin: Int = 60,
     val isMoved: Boolean = false,
-    val movedReason: String = "",
+    val movedReason: String = "",      // "RAIN", "SNOW", 또는 빈 문자열
     val soundUri: String = "",         // 빈 문자열 = 기본 알람음
-    val soundName: String = "기본 알람음"
+    val soundName: String = "",        // 빈 문자열 기본값, 표시 시 리소스 사용
+    val rainSensitivity: Int = 2,      // 0=아주민감, 1=민감, 2=보통(기본), 3=둔감
+    val snowSensitivity: Int = 2       // 0=아주민감, 1=민감, 2=보통(기본), 3=둔감
 )

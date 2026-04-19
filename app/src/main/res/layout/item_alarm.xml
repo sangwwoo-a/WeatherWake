@@ -18,54 +18,128 @@
         android:orientation="vertical"
         android:padding="20dp">
 
-        <!-- 상단 행: 시각 + 알람 ON/OFF + 삭제 -->
+        <!-- 상단 영역: 시각/라벨 블록 + (라벨 줄 높이로 내려간) 토글/삭제 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:orientation="horizontal">
 
-            <!-- 시각 + 라벨 블록 -->
+            <!-- 다중선택 체크박스 (선택 모드에서만 표시) -->
+            <CheckBox
+                android:id="@+id/checkSelect"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_gravity="center_vertical"
+                android:clickable="false"
+                android:focusable="false"
+                android:visibility="gone"/>
+
+            <!-- 시각 + 라벨 블록 (좌측) -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:orientation="vertical">
 
-                <TextView android:id="@+id/tvTime"
-                    android:layout_width="wrap_content"
+                <!-- 시각 행: AM/PM + HH:MM + 요일 (한 줄, baseline 정렬) -->
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="42sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/text_primary"
-                    android:letterSpacing="-0.02"
-                    android:fontFamily="sans-serif-light"/>
+                    android:orientation="horizontal"
+                    android:baselineAligned="true"
+                    android:gravity="bottom">
 
-                <TextView android:id="@+id/tvLabel"
-                    android:layout_width="wrap_content"
+                    <TextView android:id="@+id/tvAmPm"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_secondary"
+                        android:layout_marginEnd="6dp"
+                        android:layout_marginBottom="6dp"/>
+
+                    <TextView android:id="@+id/tvTime"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="42sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary"
+                        android:letterSpacing="-0.02"
+                        android:fontFamily="sans-serif-light"
+                        android:includeFontPadding="false"/>
+
+                    <!-- 요일 표시: 시각 옆 남은 폭 활용 -->
+                    <TextView android:id="@+id/tvDays"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="12dp"
+                        android:layout_marginBottom="8dp"
+                        android:textSize="12sp"
+                        android:letterSpacing="0.18"
+                        android:gravity="end"
+                        android:singleLine="true"
+                        android:ellipsize="end"/>
+                </LinearLayout>
+
+                <!-- 라벨 + 날씨연동 뱃지 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="13sp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="2dp">
+
+                    <TextView android:id="@+id/tvLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="13sp"
+                        android:textColor="@color/text_secondary"
+                        android:layout_marginEnd="8dp"/>
+
+                    <!-- 날씨연동 ON 뱃지 (연동 OFF이면 gone) -->
+                    <TextView android:id="@+id/tvWeatherBadge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_weather_linked_on"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/primary_blue"
+                        android:background="@drawable/bg_weather_badge_blue"
+                        android:paddingHorizontal="7dp"
+                        android:paddingVertical="2dp"
+                        android:visibility="gone"/>
+
+                </LinearLayout>
+
+                <!-- 민감도 요약 줄 (날씨연동 ON일 때만 표시, 한 줄 고정) -->
+                <TextView android:id="@+id/tvSensitivitySummary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="11sp"
                     android:textColor="@color/text_secondary"
-                    android:layout_marginTop="2dp"/>
+                    android:layout_marginTop="4dp"
+                    android:singleLine="true"
+                    android:ellipsize="end"
+                    android:visibility="gone"/>
 
             </LinearLayout>
 
-            <!-- 알람 ON/OFF 스위치 -->
-            <com.google.android.material.materialswitch.MaterialSwitch
-                android:id="@+id/switchEnabled"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="12dp"
-                app:thumbTint="@color/switch_thumb_color"
-                app:trackTint="@color/switch_track_color"/>
-
-            <!-- 삭제 버튼 -->
+            <!-- 우측: 삭제 버튼만 (라벨 줄 높이에 정렬) -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnDelete"
                 style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="삭제"
+                android:layout_gravity="bottom"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:text="@string/action_delete"
                 android:textSize="12sp"
                 android:textColor="@color/text_secondary"
                 app:rippleColor="@color/outline"/>
@@ -77,28 +151,85 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@color/outline"
-            android:layout_marginTop="14dp"
-            android:layout_marginBottom="12dp"/>
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="4dp"/>
 
-        <!-- 하단 행: 날씨 연동 토글 -->
+        <!-- 하단 행: 날씨 연동 토글 + 알람 ON/OFF 토글 (한 줄) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical">
 
+            <!-- 날씨 연동 라벨 -->
             <TextView
-                android:layout_width="0dp"
+                android:id="@+id/tvWeatherLabel"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="☔ 날씨 연동"
+                android:text="@string/label_weather_emoji_link"
                 android:textSize="13sp"
-                android:textColor="@color/text_secondary"/>
+                android:textColor="@color/text_primary"/>
 
+            <!-- 날씨 상태 뱃지 -->
+            <TextView
+                android:id="@+id/tvWeatherStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="6dp"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="2dp"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:background="@drawable/bg_weather_badge"/>
+
+            <!-- 날씨 연동 스위치 -->
             <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/switchWeather"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:minHeight="0dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                app:thumbTint="@color/switch_thumb_color"
+                app:trackTint="@color/switch_track_color"/>
+
+            <!-- 가운데 가변 스페이서 -->
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"/>
+
+            <!-- 알람 ON/OFF 라벨 -->
+            <TextView
+                android:id="@+id/tvAlarmLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_alarm"
+                android:textSize="13sp"
+                android:textColor="@color/text_primary"/>
+
+            <!-- 알람 상태 뱃지 (ON/OFF) — 날씨 연동과 동일 스타일 -->
+            <TextView
+                android:id="@+id/tvAlarmStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="6dp"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="2dp"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:background="@drawable/bg_weather_badge"/>
+
+            <!-- 알람 ON/OFF 스위치 (MaterialSwitch로 통일) -->
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/switchEnabled"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="0dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
                 app:thumbTint="@color/switch_thumb_color"
                 app:trackTint="@color/switch_track_color"/>
 

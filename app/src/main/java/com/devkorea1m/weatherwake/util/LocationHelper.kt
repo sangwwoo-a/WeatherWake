@@ -2,6 +2,7 @@ package com.devkorea1m.weatherwake.util
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.devkorea1m.weatherwake.R
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
@@ -20,9 +21,16 @@ object LocationHelper {
     // ── GPS 현재 위치 조회 ──────────────────────────
     suspend fun getCurrentLocation(context: Context): LatLon? = runCatching {
         val client = LocationServices.getFusedLocationProviderClient(context)
+        val label = context.getString(R.string.label_current_location_gps)
+
+        // 1차: 캐시된 마지막 위치 (빠르고 권한 문제 없음)
+        val last = client.lastLocation.await()
+        if (last != null) return@runCatching LatLon(last.latitude, last.longitude, label)
+
+        // 2차: 캐시 없을 때 새로 요청 (COARSE로도 동작)
         val cts = CancellationTokenSource()
         val loc = client.getCurrentLocation(Priority.PRIORITY_BALANCED_POWER_ACCURACY, cts.token).await()
-        loc?.let { LatLon(it.latitude, it.longitude, "현재 위치") }
+        loc?.let { LatLon(it.latitude, it.longitude, label) }
     }.getOrNull()
 
     // ── 저장된 위치 ─────────────────────────────────

@@ -8,7 +8,7 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.devkorea1m.weatherwake.data.model.AlarmEntity
 
-@Database(entities = [AlarmEntity::class], version = 2, exportSchema = false)
+@Database(entities = [AlarmEntity::class], version = 3, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun alarmDao(): AlarmDao
@@ -24,6 +24,14 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /** v2 → v3: rainSensitivity, snowSensitivity 컬럼 추가 */
+        private val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE alarms ADD COLUMN rainSensitivity INTEGER NOT NULL DEFAULT 2")
+                db.execSQL("ALTER TABLE alarms ADD COLUMN snowSensitivity INTEGER NOT NULL DEFAULT 2")
+            }
+        }
+
         fun getInstance(context: Context): AppDatabase =
             INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
@@ -31,7 +39,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "weatherwake.db"
                 )
-                    .addMigrations(MIGRATION_1_2)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                     .build()
                     .also { INSTANCE = it }
             }

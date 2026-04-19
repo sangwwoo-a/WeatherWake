@@ -5,8 +5,8 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import com.devkorea1m.weatherwake.AlarmReceiver
+import com.devkorea1m.weatherwake.MainActivity
 import com.devkorea1m.weatherwake.data.model.AlarmEntity
-import java.util.Calendar
 
 object AlarmScheduler {
 
@@ -14,6 +14,7 @@ object AlarmScheduler {
     const val EXTRA_MOVED_REASON = "moved_reason"
     const val EXTRA_IS_MOVED     = "is_moved"
     const val EXTRA_SOUND_URI    = "sound_uri"
+    const val EXTRA_REPEAT_DAYS  = "repeat_days"
 
     /**
      * 알람 등록 (또는 갱신)
@@ -27,16 +28,43 @@ object AlarmScheduler {
     ) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = buildIntent(context, alarm, movedReason, advanceMinutes > 0)
-        val pendingIntent = PendingIntent.getBroadcast(
+
+        // 알람 발동 시 AlarmReceiver로 브로드캐스트를 보내는 실제 operation
+        val operationPi = PendingIntent.getBroadcast(
             context, alarm.id, intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val triggerTime = calcTriggerTime(alarm.hour, alarm.minute, advanceMinutes)
-        alarmManager.setAlarmClock(
-            AlarmManager.AlarmClockInfo(triggerTime, pendingIntent),
-            pendingIntent
+        // 상태바 알람 아이콘을 탭했을 때 열리는 showIntent.
+        // 반드시 Activity PendingIntent여야 한다:
+        //  - BroadcastReceiver를 넣으면 일부 기기에서 setAlarmClock()의
+        //    "백그라운드 Activity 시작 허용" 예외 조건이 제대로 적용되지 않는다.
+        //  - 이 showIntent 덕분에 시스템이 이 앱을 "알람 시계 앱"으로 인식하고
+        //    화면이 꺼진 상태에서도 AlarmReceiver → startActivity() 및
+        //    fullScreenIntent 발동을 허용한다.
+        val showPi = PendingIntent.getActivity(
+            context,
+            alarm.id + 50000,  // operationPi와 requestCode 충돌 방지
+            Intent(context, MainActivity::class.java),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
+
+        val triggerTime = DateTimeUtils.nextAlarmTimeMs(
+            hour           = alarm.hour,
+            minute         = alarm.minute,
+            repeatDays     = alarm.repeatDays,
+            advanceMinutes = advanceMinutes
+        )
+
+        try {
+            alarmManager.setAlarmClock(
+                AlarmManager.AlarmClockInfo(triggerTime, showPi),  // showIntent = Activity
+                operationPi                                          // operation  = BroadcastReceiver
+            )
+        } catch (e: SecurityException) {
+            // Android 12+에서 SCHEDULE_EXACT_ALARM 권한 미승인 시 발생
+            e.printStackTrace()
+        }
     }
 
     /** 알람 취소 */
@@ -50,22 +78,6 @@ object AlarmScheduler {
         alarmManager.cancel(pendingIntent)
     }
 
-    /** 다음 알람 울릴 시각 계산 (밀리초) */
-    private fun calcTriggerTime(hour: Int, minute: Int, advanceMinutes: Int): Long {
-        val cal = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, hour)
-            set(Calendar.MINUTE, minute)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-            add(Calendar.MINUTE, -advanceMinutes)
-            // 이미 지난 시각이면 내일로
-            if (timeInMillis <= System.currentTimeMillis()) {
-                add(Calendar.DAY_OF_YEAR, 1)
-            }
-        }
-        return cal.timeInMillis
-    }
-
     private fun buildIntent(
         context: Context,
         alarm: AlarmEntity,
@@ -76,5 +88,6 @@ object AlarmScheduler {
         putExtra(EXTRA_MOVED_REASON, movedReason)
         putExtra(EXTRA_IS_MOVED, isMoved)
         putExtra(EXTRA_SOUND_URI, alarm.soundUri)
+        putExtra(EXTRA_REPEAT_DAYS, alarm.repeatDays)
     }
 }

@@ -11,23 +11,24 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 /**
- * 기기 재시작 시 WorkManager + AlarmManager 복원
+ * 기기 재시작 시 AlarmManager + WeatherCheckWorker 복원
  */
 class BootReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != Intent.ACTION_BOOT_COMPLETED) return
 
-        // 1. WorkManager 30분 주기 재등록
-        WeatherCheckWorker.enqueue(context)
-
-        // 2. Room DB에서 활성 알람 복원
         CoroutineScope(Dispatchers.IO).launch {
-            val alarms = AppDatabase.getInstance(context).alarmDao().getActiveWeatherAlarms()
+            val db     = AppDatabase.getInstance(context)
+            val alarms = db.alarmDao().getActiveWeatherAlarms()
+
             for (alarm in alarms) {
-                // isMoved 상태 초기화 (재시작 시 날씨를 다시 판단)
-                AppDatabase.getInstance(context).alarmDao().setMoved(alarm.id, false, "")
+                // isMoved 초기화 (재시작 시 날씨를 다시 판단)
+                db.alarmDao().setMoved(alarm.id, false, "")
+                // 알람 원래 시각으로 복원
                 AlarmScheduler.schedule(context, alarm, 0)
+                // 알람 90분 전 날씨 체크 1회 재예약 (30분 주기 대신)
+                WeatherCheckWorker.scheduleFor(context, alarm)
             }
         }
     }

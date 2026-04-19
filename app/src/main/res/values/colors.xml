@@ -36,6 +36,13 @@
     <color name="alarm_active">#34D399</color>
     <color name="alarm_inactive">#3D5280</color>
 
+    <!-- Brand (DevKorea1m) -->
+    <color name="brand_base_dark">#F2F3F5</color>   <!-- "DevKorea" on dark bg -->
+    <color name="brand_base_light">#0A0A0B</color>  <!-- "DevKorea" on light bg -->
+    <color name="brand_accent">#FF0000</color>       <!-- "1m" YouTube Red, locale/theme-independent -->
+    <color name="brand_builtby_dark">#9FA3AB</color> <!-- "Built by" on dark bg -->
+    <color name="brand_builtby_light">#62656A</color><!-- "Built by" on light bg -->
+
     <!-- Legacy (unused but kept to avoid ref errors) -->
     <color name="teal_700">#00796B</color>
     <color name="purple_200">#FFBB86FC</color>

@@ -1,7 +1,10 @@
 package com.devkorea1m.weatherwake.sound
 
-enum class SoundCategory(val label: String) {
-    LOUD("🔊 시끄러운"),
-    NORMAL("🔔 일반"),
-    CALM("🌙 잔잔한")
+import androidx.annotation.StringRes
+import com.devkorea1m.weatherwake.R
+
+enum class SoundCategory(@StringRes val labelRes: Int) {
+    LOUD(R.string.sound_category_loud),
+    NORMAL(R.string.sound_category_normal),
+    CALM(R.string.sound_category_calm)
 }

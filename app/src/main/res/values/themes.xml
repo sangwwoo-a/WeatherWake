@@ -26,10 +26,11 @@
         <item name="colorOutline">@color/outline</item>
         <item name="colorOutlineVariant">@color/outline_variant</item>
 
-        <!-- Status bar & nav bar -->
-        <item name="android:statusBarColor">@color/bg_deep</item>
-        <item name="android:navigationBarColor">@color/bg_deep</item>
-        <item name="android:windowLightStatusBar">false</item>
+        <!-- Status bar & nav bar
+             Android 15(API 35)부터 android:statusBarColor / navigationBarColor /
+             windowLightStatusBar는 deprecated. Edge-to-edge 모드에서는 시스템이
+             자동으로 처리하므로 테마에서 지정하지 않는다.
+             아이콘 명도는 MainActivity.kt 등에서 WindowInsetsControllerCompat로 제어. -->
 
         <!-- Elevation overlays (dark theme에서 카드가 더 밝아지는 현상 억제) -->
         <item name="elevationOverlayEnabled">true</item>
@@ -47,12 +48,12 @@
         <item name="cornerSize">14dp</item>
     </style>
 
-    <!-- 알람 링 화면 – 완전 블랙 -->
+    <!-- 알람 링 화면 – 완전 블랙
+         API 35+에서 statusBarColor/navigationBarColor는 deprecated.
+         edge-to-edge + windowBackground=#000000으로 시스템바 영역도 자연스럽게 검정으로 보임. -->
     <style name="Theme.WeatherWake.AlarmRing" parent="Theme.WeatherWake">
         <item name="android:colorBackground">#000000</item>
         <item name="android:windowBackground">#000000</item>
         <item name="colorSurface">#000000</item>
-        <item name="android:statusBarColor">#000000</item>
-        <item name="android:navigationBarColor">#000000</item>
     </style>
 </resources>

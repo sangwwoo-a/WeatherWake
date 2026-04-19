@@ -3,6 +3,7 @@ package com.devkorea1m.weatherwake.sound
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -10,6 +11,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
+import com.devkorea1m.weatherwake.R
 import com.devkorea1m.weatherwake.databinding.ActivitySoundPickerBinding
 
 class SoundPickerActivity : AppCompatActivity() {
@@ -23,9 +25,18 @@ class SoundPickerActivity : AppCompatActivity() {
     private val vm: SoundPickerViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         b = ActivitySoundPickerBinding.inflate(layoutInflater)
         setContentView(b.root)
+
+        // Edge-to-edge insets 처리
+        ViewCompat.setOnApplyWindowInsetsListener(b.root) { view, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
+
         setSupportActionBar(b.toolbar)
         b.toolbar.setNavigationOnClickListener { finish() }
 
@@ -42,7 +53,7 @@ class SoundPickerActivity : AppCompatActivity() {
 
         // 이전 선택값 복원
         val initUri  = intent.getStringExtra(EXTRA_SOUND_URI)  ?: ""
-        val initName = intent.getStringExtra(EXTRA_SOUND_NAME) ?: "기본 알람음"
+        val initName = intent.getStringExtra(EXTRA_SOUND_NAME) ?: getString(R.string.label_default_alarm_sound)
         vm.init(initUri, initName)
 
         // ViewPager2 + TabLayout
@@ -54,7 +65,7 @@ class SoundPickerActivity : AppCompatActivity() {
         }
 
         TabLayoutMediator(b.tabLayout, b.viewPager) { tab, pos ->
-            tab.text = categories[pos].label
+            tab.text = getString(categories[pos].labelRes)
         }.attach()
 
         // 탭 전환 시 이전 탭에서 재생 중이던 소리 즉시 정지

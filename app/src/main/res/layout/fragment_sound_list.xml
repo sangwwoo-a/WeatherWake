@@ -16,7 +16,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="이 기기에서 사용 가능한\n알람음이 없습니다."
+        android:text="@string/message_no_sounds_available"
         android:gravity="center"
         android:textColor="?attr/colorOnSurfaceVariant"
         android:visibility="gone"/>
