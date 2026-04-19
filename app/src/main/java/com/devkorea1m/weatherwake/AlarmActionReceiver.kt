@@ -14,9 +14,6 @@ class AlarmActionReceiver : BroadcastReceiver() {
         val action  = intent.action ?: return
         val alarmId = intent.getIntExtra(AlarmService.EXTRA_ALARM_ID_ACTION, -1)
 
-        // 오버레이가 떠 있으면 제거
-        AlarmOverlayManager.getInstance(context).removeAlarmOverlay()
-
         val serviceIntent = Intent(context, AlarmService::class.java).apply {
             this.action = action
             putExtra(AlarmService.EXTRA_ALARM_ID_ACTION, alarmId)
