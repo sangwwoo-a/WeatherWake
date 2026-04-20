@@ -5,8 +5,11 @@ import androidx.work.*
 import com.devkorea1m.weatherwake.BuildConfig
 import com.devkorea1m.weatherwake.data.db.AppDatabase
 import com.devkorea1m.weatherwake.data.model.AlarmEntity
+import com.devkorea1m.weatherwake.data.model.PrecipInfo
 import com.devkorea1m.weatherwake.data.model.WeatherConditionType
+import com.devkorea1m.weatherwake.data.repository.AppResult
 import com.devkorea1m.weatherwake.data.repository.WeatherRepository
+import com.devkorea1m.weatherwake.data.repository.WeatherResult
 import com.devkorea1m.weatherwake.util.AlarmConstants
 import com.devkorea1m.weatherwake.util.AlarmScheduler
 import com.devkorea1m.weatherwake.util.DateTimeUtils
@@ -50,17 +53,17 @@ class WeatherCheckWorker(
             LocationHelper.getSavedLocation(context)
         } ?: return Result.retry()
 
-        // 날씨 API 호출 (실패 시 재시도)
-        val weatherResult = repository.getCurrentWeather(
-            lat    = latLon.lat,
-            lon    = latLon.lon,
-            apiKey = BuildConfig.OWM_API_KEY
-        )
-
-        val weather = when (weatherResult) {
-            is com.devkorea1m.weatherwake.data.repository.AppResult.Success -> weatherResult.data
-            is com.devkorea1m.weatherwake.data.repository.AppResult.NetworkError -> return Result.retry()
-            is com.devkorea1m.weatherwake.data.repository.AppResult.Error -> return Result.retry()
+        // 날씨 획득 — 디버그 빌드에서 weather.override 가 설정돼 있으면 그 값으로 시뮬레이션.
+        // release 빌드는 BuildConfig.DEBUG=false 라서 이 분기가 절대 타지 않음 (이중 가드).
+        val override = if (BuildConfig.DEBUG) BuildConfig.WEATHER_OVERRIDE else ""
+        val weather: WeatherResult = if (override.isNotBlank()) {
+            simulatedWeather(override, latLon.label)
+        } else {
+            when (val r = repository.getCurrentWeather(latLon.lat, latLon.lon, BuildConfig.OWM_API_KEY)) {
+                is AppResult.Success      -> r.data
+                is AppResult.NetworkError -> return Result.retry()
+                is AppResult.Error        -> return Result.retry()
+            }
         }
 
         val diffMin = DateTimeUtils.minutesUntilAlarm(alarm.hour, alarm.minute)
@@ -102,6 +105,37 @@ class WeatherCheckWorker(
         }
 
         return Result.success()
+    }
+
+    /**
+     * 디버그 전용 — 외부 API 호출 없이 가상의 날씨를 만들어 준다.
+     * 사용자 민감도 임계값을 확실히 넘는 값으로 세팅해서 앞당김이 무조건 발동되도록 함.
+     */
+    private fun simulatedWeather(kind: String, cityName: String): WeatherResult = when (kind.uppercase()) {
+        "RAIN"  -> WeatherResult(
+            conditionType = WeatherConditionType.RAIN,
+            description   = "🧪 시뮬: 강우",
+            tempCelsius   = 12.0,
+            cityName      = cityName,
+            rain          = PrecipInfo(oneHour = 5.0f),   // "둔감" 임계값(3.0) 보다도 높게
+            snow          = null
+        )
+        "SNOW"  -> WeatherResult(
+            conditionType = WeatherConditionType.SNOW,
+            description   = "🧪 시뮬: 강설",
+            tempCelsius   = -2.0,
+            cityName      = cityName,
+            rain          = null,
+            snow          = PrecipInfo(oneHour = 12.0f)   // "둔감" 임계값(10.0) 보다도 높게
+        )
+        else    -> WeatherResult(
+            conditionType = WeatherConditionType.CLEAR,
+            description   = "🧪 시뮬: 맑음",
+            tempCelsius   = 18.0,
+            cityName      = cityName,
+            rain          = null,
+            snow          = null
+        )
     }
 
     companion object {
