@@ -1,6 +1,7 @@
 package com.devkorea1m.weatherwake
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.NotificationManager
 import android.content.Intent
@@ -9,6 +10,7 @@ import android.net.Uri
 import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
 import android.provider.Settings
 import android.text.SpannableStringBuilder
 import android.text.Spanned
@@ -67,7 +69,6 @@ class MainActivity : AppCompatActivity() {
         }
 
     // 설정 화면에서 돌아왔는지 추적
-    private var waitingForOverlayPermission = false
     private var waitingForFullScreenIntentPermission = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -141,11 +142,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        // 오버레이 권한 설정 화면에서 돌아온 경우
-        if (waitingForOverlayPermission) {
-            waitingForOverlayPermission = false
-            checkFullScreenIntentPermission()
-        }
         // 전체화면 권한 설정 화면에서 돌아온 경우
         if (waitingForFullScreenIntentPermission) {
             waitingForFullScreenIntentPermission = false
@@ -177,34 +173,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     // ─── 권한 순차 요청 ──────────────────────────────────
-    // 순서: ① 오버레이(다른 앱 위에 표시) → ② 전체화면 → ③ 알림 → ④ 정확한 알람 → ⑤ 위치
+    // 순서: ① 전체화면 → ② 알림 → ③ 정확한 알람 → ④ 위치
+    // SYSTEM_ALERT_WINDOW(오버레이) 권한은 표준 full-screen intent 경로 도입으로 더 이상 사용하지 않음.
 
     private fun requestRequiredPermissions() {
-        checkOverlayPermission()
-    }
-
-    private fun checkOverlayPermission() {
-        // 0단계: SYSTEM_ALERT_WINDOW (다른 앱 위에 표시) — 알람 오버레이의 핵심 권한
-        // 이 권한이 있어야 화면이 꺼진/충전 중 상태에서도 알람 UI를 강제로 표시할 수 있다.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
-            !Settings.canDrawOverlays(this)) {
-            AlertDialog.Builder(this)
-                .setTitle(getString(R.string.message_overlay_permission_title))
-                .setMessage(getString(R.string.message_overlay_permission_body))
-                .setCancelable(false)
-                .setPositiveButton(getString(R.string.action_allow_now)) { _, _ ->
-                    waitingForOverlayPermission = true
-                    startActivity(
-                        Intent(
-                            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                            Uri.parse("package:$packageName")
-                        )
-                    )
-                }
-                .setNegativeButton(getString(R.string.action_allow_later)) { _, _ -> checkFullScreenIntentPermission() }
-                .show()
-            return
-        }
         checkFullScreenIntentPermission()
     }
 
@@ -259,10 +231,33 @@ class MainActivity : AppCompatActivity() {
                         startActivity(Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,
                             Uri.parse("package:$packageName")))
                     }
-                    .setNegativeButton(getString(R.string.action_allow_later)) { _, _ -> ensureLocationPermission() }
+                    .setNegativeButton(getString(R.string.action_allow_later)) { _, _ -> checkBatteryOptimization() }
                     .show()
                 return
             }
+        }
+        checkBatteryOptimization()
+    }
+
+    private fun checkBatteryOptimization() {
+        // 4단계: 배터리 최적화 예외 — 없으면 시스템 절전으로 알람이 지연/누락될 수 있음
+        val pm = getSystemService(PowerManager::class.java)
+        if (pm != null && !pm.isIgnoringBatteryOptimizations(packageName)) {
+            AlertDialog.Builder(this)
+                .setTitle(getString(R.string.message_battery_opt_title))
+                .setMessage(getString(R.string.message_battery_opt_body))
+                .setCancelable(false)
+                .setPositiveButton(getString(R.string.action_open_settings)) { _, _ ->
+                    runCatching {
+                        @SuppressLint("BatteryLife")
+                        val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
+                            .setData(Uri.parse("package:$packageName"))
+                        startActivity(intent)
+                    }
+                }
+                .setNegativeButton(getString(R.string.action_allow_later)) { _, _ -> ensureLocationPermission() }
+                .show()
+            return
         }
         ensureLocationPermission()
     }

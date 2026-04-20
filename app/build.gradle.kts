@@ -20,12 +20,19 @@ android {
         applicationId = "com.devkorea1m.weatherwake"
         minSdk = 26
         targetSdk = 35
-        versionCode = 13
-        versionName = "1.1.3"
+        versionCode = 17
+        versionName = "1.1.7"
 
         buildConfigField(
             "String", "OWM_API_KEY",
             "\"${localProps.getProperty("owm.api.key", "")}\""
+        )
+
+        // 디버그 전용 날씨 오버라이드. release 빌드엔 영향 없음 (WeatherCheckWorker가
+        // BuildConfig.DEBUG 가드로 이중 체크). 값: ""(실제 날씨), "RAIN", "SNOW", "CLEAR"
+        buildConfigField(
+            "String", "WEATHER_OVERRIDE",
+            "\"${localProps.getProperty("weather.override", "")}\""
         )
     }
 

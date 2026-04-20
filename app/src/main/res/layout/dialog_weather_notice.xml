@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scrollRoot"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:paddingTop="20dp"
+        android:paddingBottom="8dp">
+
+        <!-- 제목 ("이해했어요" 버튼과 동일한 primary_blue, 가운데 정렬) -->
+        <TextView android:id="@+id/tvNoticeTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/primary_blue"
+            android:gravity="center"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- 본문 (text_primary 로 뒤집음) -->
+        <TextView android:id="@+id/tvNoticeBody"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textColor="@color/text_primary"
+            android:lineSpacingExtra="3dp"/>
+
+        <!-- 경고 섹션 (amber/노란색) -->
+        <TextView android:id="@+id/tvNoticeWarning"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="13sp"
+            android:textColor="@color/amber_temp"
+            android:lineSpacingExtra="3dp"
+            android:layout_marginTop="18dp"/>
+
+    </LinearLayout>
+</ScrollView>
