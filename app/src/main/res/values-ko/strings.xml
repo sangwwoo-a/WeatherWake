@@ -98,6 +98,10 @@
     <string name="message_full_screen_permission_body">화면이 꺼진 상태에서 알람이 울릴 때 전체화면으로\n알람 끄기 화면을 표시하려면 권한이 필요합니다.\n\n설정 화면이 열리면 \'WeatherWake\'를 찾아\n\'전체 화면으로 표시\'를 허용해 주세요.</string>
     <string name="message_exact_alarm_permission_title">알람 권한 필요</string>
     <string name="message_exact_alarm_permission_body">정확한 시간에 알람을 울리려면 \'알람 및 리마인더\' 권한이 필요합니다.\n설정에서 허용해 주세요.</string>
+    <string name="dialog_weather_notice_title">날씨 연동 알람 작동 방식 안내</string>
+    <string name="dialog_weather_notice_body">이 알람은 다음과 같이 동작합니다:\n\n1. 기본 알람 설정 시각은 매일 %2$s입니다.\n\n2. 앱은 매일 %1$s(알람 90분 전)에 OpenWeatherMap에서 현재 날씨를 자동으로 조회합니다.\n\n3. OpenWeatherMap에 날씨를 조회한 시점을 기준으로 비가 감지되면 %3$d분, 눈이 감지되면 %4$d분 기본 알람 설정 시각을 앞당깁니다.\n\n4. 90분 전 기준으로 %1$s부터 %2$s 사이의 날씨 변화는 반영되지 않습니다.</string>
+    <string name="dialog_weather_notice_warning">⚠ 네트워크·기기 전원 관리·OS 업데이트 등으로 날씨 조회가 지연되거나 실패할 수 있어요.\n\n중요한 일정에는 기기 기본 알람과 함께 쓰시길 권장합니다.</string>
+    <string name="dialog_weather_notice_ok">이해했어요</string>
     <string name="message_battery_opt_title">🔋 배터리 최적화 예외 (권장)</string>
     <string name="message_battery_opt_body">알람 자체는 시스템이 정시에 깨워드려요.\n\n다만 알람 시각 90분 전에 날씨를 확인해 비·눈 감지 시 더 일찍 깨워주는 기능은 이 예외가 있어야 정확하게 동작합니다. (WeatherWake는 하루 알람당 딱 한 번만 날씨를 확인해 배터리 소모를 최소화합니다.)\n\n허용하지 않으면 날씨 앞당김이 몇 분 지연될 수 있어요.</string>
     <string name="action_open_settings">설정으로</string>

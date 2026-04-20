@@ -15,6 +15,10 @@ import com.devkorea1m.weatherwake.databinding.ActivityAlarmSettingBinding
 import com.devkorea1m.weatherwake.sound.SoundPickerActivity
 import com.devkorea1m.weatherwake.viewmodel.AlarmViewModel
 import com.devkorea1m.weatherwake.weather.WeatherRainActivity
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 class AlarmSettingActivity : AppCompatActivity() {
 
@@ -210,8 +214,62 @@ class AlarmSettingActivity : AppCompatActivity() {
             rainSensitivity = rainSensitivity,
             snowSensitivity = snowSensitivity
         )
+        // 날씨 연동 알람은 저장 직전에 작동 방식 안내 다이얼로그를 띄워 명시적 동의를 받는다.
+        // 법적 고지 + 사용자 인지 확인 역할.
+        if (alarm.weatherTrigger) {
+            showWeatherNoticeDialog(alarm)
+        } else {
+            persistAlarm(alarm)
+        }
+    }
+
+    private fun showWeatherNoticeDialog(alarm: AlarmEntity) {
+        val checkTime = formatTimeOfDay(alarm.hour, alarm.minute, minusMinutes = 90)
+        val alarmTime = formatTimeOfDay(alarm.hour, alarm.minute, minusMinutes = 0)
+        val body = getString(
+            R.string.dialog_weather_notice_body,
+            checkTime,                      // %1$s — 날씨 체크 시점 (알람 90분 전)
+            alarmTime,                      // %2$s — 알람 발동 시각
+            alarm.rainAdvanceMin,           // %3$d — 비 앞당김 분
+            alarm.snowAdvanceMin            // %4$d — 눈 앞당김 분
+        )
+
+        // 커스텀 레이아웃으로 제목/본문 색 반전 + 경고 섹션 노란색 표시
+        val view = layoutInflater.inflate(R.layout.dialog_weather_notice, null)
+        view.findViewById<android.widget.TextView>(R.id.tvNoticeTitle)
+            .setText(R.string.dialog_weather_notice_title)
+        view.findViewById<android.widget.TextView>(R.id.tvNoticeBody)
+            .text = body
+        view.findViewById<android.widget.TextView>(R.id.tvNoticeWarning)
+            .setText(R.string.dialog_weather_notice_warning)
+
+        MaterialAlertDialogBuilder(this)
+            .setView(view)
+            .setCancelable(false)
+            .setPositiveButton(R.string.dialog_weather_notice_ok) { _, _ ->
+                persistAlarm(alarm)
+            }
+            .show()
+    }
+
+    private fun persistAlarm(alarm: AlarmEntity) {
         if (editAlarmId != -1) viewModel.updateAlarm(alarm)
         else viewModel.addAlarm(alarm)
         finish()
+    }
+
+    /**
+     * "알람 시각 - minusMinutes" 의 시각을 "오전/오후 H:MM" 형식으로 반환.
+     * 자정 걸쳐 전날로 넘어가는 경우에도 시각만 표시 (예: 00:30 알람 - 90 → "오후 11:00").
+     */
+    private fun formatTimeOfDay(hour: Int, minute: Int, minusMinutes: Int): String {
+        val cal = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, hour)
+            set(Calendar.MINUTE, minute)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+            add(Calendar.MINUTE, -minusMinutes)
+        }
+        return SimpleDateFormat("a h:mm", Locale.getDefault()).format(cal.time)
     }
 }

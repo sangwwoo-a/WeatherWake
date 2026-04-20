@@ -98,6 +98,10 @@
     <string name="message_full_screen_permission_body">To display the alarm screen full-screen when the screen is off,\nwe need permission.\n\nWhen the settings screen opens, find \'WeatherWake\'\nand allow \'Display full screen\'.</string>
     <string name="message_exact_alarm_permission_title">Alarm Permission Required</string>
     <string name="message_exact_alarm_permission_body">To ring the alarm at the exact time, the \'Schedule Alarms and Reminders\' permission is required.\nPlease allow it in Settings.</string>
+    <string name="dialog_weather_notice_title">How your weather-linked alarm works</string>
+    <string name="dialog_weather_notice_body">This alarm will behave as follows:\n\n1. The default alarm time is %2$s every day.\n\n2. Every day at %1$s (90 minutes before the alarm), the app automatically checks the current weather from OpenWeatherMap.\n\n3. Based on the weather at the OpenWeatherMap query time, if rain is detected the default alarm time is moved up by %3$d minutes, or by %4$d minutes for snow.\n\n4. Based on the 90-minute check, weather changes between %1$s and %2$s won\'t affect the alarm.</string>
+    <string name="dialog_weather_notice_warning">⚠ Network issues, battery optimization, or OS updates may delay or fail the weather check.\n\nFor critical schedules, please also use your phone\'s built-in alarm.</string>
+    <string name="dialog_weather_notice_ok">I understand</string>
     <string name="message_battery_opt_title">🔋 Battery Optimization Exception (recommended)</string>
     <string name="message_battery_opt_body">Your alarm itself will ring on time regardless of this setting.\n\nHowever, the feature that checks the weather 90 minutes before the alarm and wakes you earlier when rain or snow is detected works more reliably with this exception. (WeatherWake checks the weather only once per alarm to keep battery use minimal.)\n\nWithout it, the weather-based early wake-up may be delayed by a few minutes.</string>
     <string name="action_open_settings">Go to Settings</string>
