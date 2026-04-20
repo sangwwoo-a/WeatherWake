@@ -224,14 +224,21 @@ class AlarmSettingActivity : AppCompatActivity() {
     }
 
     private fun showWeatherNoticeDialog(alarm: AlarmEntity) {
-        val checkTime = formatTimeOfDay(alarm.hour, alarm.minute, minusMinutes = 90)
-        val alarmTime = formatTimeOfDay(alarm.hour, alarm.minute, minusMinutes = 0)
+        val checkTime        = formatTimeOfDay(alarm.hour, alarm.minute, minusMinutes = 90)
+        val alarmTime        = formatTimeOfDay(alarm.hour, alarm.minute, minusMinutes = 0)
+        val rainAdvancedTime = formatTimeOfDay(alarm.hour, alarm.minute, minusMinutes = alarm.rainAdvanceMin)
+        val snowAdvancedTime = formatTimeOfDay(alarm.hour, alarm.minute, minusMinutes = alarm.snowAdvanceMin)
+        val repeatLabel      = formatRepeatLabel(alarm.repeatDays)
         val body = getString(
             R.string.dialog_weather_notice_body,
-            checkTime,                      // %1$s — 날씨 체크 시점 (알람 90분 전)
-            alarmTime,                      // %2$s — 알람 발동 시각
-            alarm.rainAdvanceMin,           // %3$d — 비 앞당김 분
-            alarm.snowAdvanceMin            // %4$d — 눈 앞당김 분
+            checkTime,              // %1$s — 날씨 체크 시점 (알람 90분 전)
+            alarmTime,              // %2$s — 알람 발동 시각 (원래 시각)
+            rainAdvancedTime,       // %3$s — 비 감지 시 울릴 시각
+            snowAdvancedTime,       // %4$s — 눈 감지 시 울릴 시각
+            alarm.rainAdvanceMin,   // %5$d — 비 앞당김 분
+            alarm.snowAdvanceMin,   // %6$d — 눈 앞당김 분
+            repeatLabel,            // %7$s — 반복 패턴 ("매일"/"평일(월~금)"/"월·수·금"/"한 번만" 등)
+            alarm.label             // %8$s — 알람명
         )
 
         // 커스텀 레이아웃으로 제목/본문 색 반전 + 경고 섹션 노란색 표시
@@ -239,16 +246,55 @@ class AlarmSettingActivity : AppCompatActivity() {
         view.findViewById<android.widget.TextView>(R.id.tvNoticeTitle)
             .setText(R.string.dialog_weather_notice_title)
         view.findViewById<android.widget.TextView>(R.id.tvNoticeBody)
-            .text = body
+            .text = highlightLabelOccurrences(body, alarm.label)
         view.findViewById<android.widget.TextView>(R.id.tvNoticeWarning)
             .setText(R.string.dialog_weather_notice_warning)
 
-        MaterialAlertDialogBuilder(this)
+        val dialog = MaterialAlertDialogBuilder(this)
             .setView(view)
             .setCancelable(false)
+            .setNeutralButton(R.string.dialog_weather_notice_learn_more, null)  // 수동 핸들링 (자동 dismiss 방지)
             .setPositiveButton(R.string.dialog_weather_notice_ok) { _, _ ->
                 persistAlarm(alarm)
             }
+            .create()
+
+        dialog.setOnShowListener {
+            // "자세히 알아보기" 버튼은 상세 다이얼로그를 열되, 이 메인 다이얼로그는 유지.
+            // MaterialAlertDialog 는 기본적으로 버튼 클릭 시 자동 dismiss 되지만,
+            // show() 이후 직접 리스너를 덮어쓰면 자동 dismiss 가 비활성화됨.
+            dialog.getButton(android.content.DialogInterface.BUTTON_NEUTRAL).setOnClickListener {
+                showAdvanceDetailDialog(alarm)
+            }
+        }
+
+        dialog.show()
+    }
+
+    /**
+     * "자세히 알아보기" 탭 시 열리는 상세 다이얼로그.
+     * 조회 결과에 따른 3가지 시나리오(비/눈/맑음 각각의 실제 울림 시각) + 90분 윈도우 한계 안내.
+     */
+    private fun showAdvanceDetailDialog(alarm: AlarmEntity) {
+        val checkTime        = formatTimeOfDay(alarm.hour, alarm.minute, minusMinutes = 90)
+        val alarmTime        = formatTimeOfDay(alarm.hour, alarm.minute, minusMinutes = 0)
+        val rainAdvancedTime = formatTimeOfDay(alarm.hour, alarm.minute, minusMinutes = alarm.rainAdvanceMin)
+        val snowAdvancedTime = formatTimeOfDay(alarm.hour, alarm.minute, minusMinutes = alarm.snowAdvanceMin)
+        val detailBody = getString(
+            R.string.dialog_weather_notice_detail_body,
+            checkTime,              // %1$s
+            alarmTime,              // %2$s
+            rainAdvancedTime,       // %3$s
+            snowAdvancedTime,       // %4$s
+            alarm.rainAdvanceMin,   // %5$d
+            alarm.snowAdvanceMin,   // %6$d
+            formatRepeatLabel(alarm.repeatDays),  // %7$s
+            alarm.label             // %8$s
+        )
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.dialog_weather_notice_detail_title)
+            .setMessage(highlightLabelOccurrences(detailBody, alarm.label))
+            .setPositiveButton(R.string.dialog_weather_notice_detail_close, null)
             .show()
     }
 
@@ -256,6 +302,64 @@ class AlarmSettingActivity : AppCompatActivity() {
         if (editAlarmId != -1) viewModel.updateAlarm(alarm)
         else viewModel.addAlarm(alarm)
         finish()
+    }
+
+    /**
+     * 다이얼로그 본문에서 알람명(label) 위치를 primary_blue 로 강조.
+     * 문자열 리소스에서 %8$s 앞뒤로 \u200B(zero-width space) 마커를 씌워놨기 때문에,
+     * 마커 페어 사이의 구간만 색칠하면 "알람" 같은 공통 단어가 label 로 설정돼도
+     * 본문 내 다른 "알람" 들은 건드리지 않는다.
+     */
+    private fun highlightLabelOccurrences(body: String, label: String): CharSequence {
+        val spannable = android.text.SpannableStringBuilder(body)
+        if (label.isBlank()) return spannable
+        val color = androidx.core.content.ContextCompat.getColor(this, R.color.primary_blue)
+        val marker = '\u200B'
+        var i = 0
+        while (i < body.length) {
+            val start = body.indexOf(marker, i)
+            if (start < 0) break
+            val end = body.indexOf(marker, start + 1)
+            if (end < 0) break
+            // [start+1 .. end) 구간이 실제 label 본문. 마커 자체는 invisible 이라 남겨둬도 무방.
+            spannable.setSpan(
+                android.text.style.ForegroundColorSpan(color),
+                start + 1, end,
+                android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            i = end + 1
+        }
+        return spannable
+    }
+
+    /**
+     * repeatDays 비트마스크를 사용자 친화적 라벨로 변환.
+     *   0                 → "한 번만" / "(one-time)"
+     *   0b1111111 (127)   → "매일" / "every day"
+     *   0b0111110 (62)    → "평일(월~금)" / "on weekdays"
+     *   0b1000001 (65)    → "주말(토·일)" / "on weekends"
+     *   기타              → 선택 요일을 "·"로 연결 (예: "월·수·금")
+     */
+    private fun formatRepeatLabel(repeatDays: Int): String = when (repeatDays) {
+        0         -> getString(R.string.dialog_repeat_once)
+        0b1111111 -> getString(R.string.dialog_repeat_every_day)
+        0b0111110 -> getString(R.string.dialog_repeat_weekdays)
+        0b1000001 -> getString(R.string.dialog_repeat_weekends)
+        else -> {
+            // bit0=일, bit1=월, ..., bit6=토
+            val dayNames = listOf(
+                getString(R.string.day_sun),
+                getString(R.string.day_mon),
+                getString(R.string.day_tue),
+                getString(R.string.day_wed),
+                getString(R.string.day_thu),
+                getString(R.string.day_fri),
+                getString(R.string.day_sat)
+            )
+            dayNames
+                .filterIndexed { i, _ -> (repeatDays and (1 shl i)) != 0 }
+                .joinToString("·")
+        }
     }
 
     /**

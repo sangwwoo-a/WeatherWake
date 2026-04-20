@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scrollRoot"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -12,13 +13,14 @@
         android:paddingTop="20dp"
         android:paddingBottom="8dp">
 
-        <!-- 제목 ("이해했어요" 버튼과 동일한 primary_blue) -->
+        <!-- 제목 ("이해했어요" 버튼과 동일한 primary_blue, 가운데 정렬) -->
         <TextView android:id="@+id/tvNoticeTitle"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="18sp"
             android:textStyle="bold"
             android:textColor="@color/primary_blue"
+            android:gravity="center"
             android:layout_marginBottom="16dp"/>
 
         <!-- 본문 (text_primary 로 뒤집음) -->

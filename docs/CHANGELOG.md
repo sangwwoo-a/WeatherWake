@@ -3,7 +3,7 @@
 이 문서는 WeatherWake의 버전별 변경 사항을 기록합니다.
 형식은 [Keep a Changelog](https://keepachangelog.com/ko/1.1.0/) 규칙을 따릅니다.
 
-## [1.1.5] - 2026-04-20 (build 15)
+## [1.1.7] - 2026-04-20 (build 17)
 
 ### 🐛 Fixed
 
