@@ -1,6 +1,7 @@
 package com.devkorea1m.weatherwake.worker
 
 import android.content.Context
+import android.util.Log
 import androidx.work.*
 import com.devkorea1m.weatherwake.data.db.AppDatabase
 import com.devkorea1m.weatherwake.data.model.AlarmEntity
@@ -13,6 +14,8 @@ import com.devkorea1m.weatherwake.util.AlarmScheduler
 import com.devkorea1m.weatherwake.util.DateTimeUtils
 import com.devkorea1m.weatherwake.util.LocationHelper
 import java.util.concurrent.TimeUnit
+
+private const val TAG = "WeatherCheckWorker"
 
 /**
  * 알람 시각 [WEATHER_CHECK_BEFORE_MIN]분 전에 날씨를 확인하고 AlarmManager를 조정하는 Worker
@@ -33,42 +36,72 @@ class WeatherCheckWorker(
     private val db = AppDatabase.getInstance(context)
 
     override suspend fun doWork(): Result {
-        // 콜드스타트 레이스 가드 — 부팅 직후 WorkManager 가 pending work 를 복원할 때
-        // Application.onCreate() (= WeatherWakeRuntime.configure()) 보다 먼저 Worker
-        // 가 실행될 가능성이 있다. 그 경우 lateinit 필드 접근이 예외로 터져 알람 앞당김
-        // 기능이 조용히 실패한다. 미구성 상태면 retry 로 WorkManager backoff 에 맡기고
-        // (몇 분 뒤엔 onCreate 가 완료된 상태) 정상 경로로 복귀하도록 한다.
-        if (!WeatherWakeRuntime.isConfigured()) return Result.retry()
+        Log.i(TAG, "▶ doWork enter (alarmId input=${inputData.getInt(KEY_ALARM_ID, -1)})")
+
+        if (!WeatherWakeRuntime.isConfigured()) {
+            Log.w(TAG, "◂ EXIT retry: runtime not configured (coldstart race)")
+            return Result.retry()
+        }
         val provider = WeatherWakeRuntime.weatherProvider
 
         val alarmId = inputData.getInt(KEY_ALARM_ID, -1)
-        if (alarmId == -1) return Result.failure()
+        if (alarmId == -1) {
+            Log.w(TAG, "◂ EXIT failure: alarmId missing")
+            return Result.failure()
+        }
 
-        val alarm = db.alarmDao().getAlarmById(alarmId) ?: return Result.failure()
-        if (!alarm.isEnabled || !alarm.weatherTrigger) return Result.success()
+        val alarm = db.alarmDao().getAlarmById(alarmId)
+        if (alarm == null) {
+            Log.w(TAG, "◂ EXIT failure: no alarm with id=$alarmId in DB")
+            return Result.failure()
+        }
+        Log.i(TAG, "  alarm loaded: id=${alarm.id} ${alarm.hour}:${alarm.minute} " +
+                "isEnabled=${alarm.isEnabled} weatherTrigger=${alarm.weatherTrigger} " +
+                "isMoved=${alarm.isMoved} rainSens=${alarm.rainSensitivity} rainAdv=${alarm.rainAdvanceMin}")
+        if (!alarm.isEnabled || !alarm.weatherTrigger) {
+            Log.w(TAG, "◂ EXIT success: alarm disabled or weatherTrigger off")
+            return Result.success()
+        }
 
-        // 알람 시각이 이미 지났으면 재시도 없이 종료
         val alarmMs = DateTimeUtils.nextAlarmTimeMs(alarm.hour, alarm.minute)
-        if (alarmMs <= System.currentTimeMillis()) return Result.success()
+        val now = System.currentTimeMillis()
+        Log.i(TAG, "  alarmMs=$alarmMs  now=$now  diff=${(alarmMs - now) / 60000}min")
+        if (alarmMs <= now) {
+            Log.w(TAG, "◂ EXIT success: alarm time already past")
+            return Result.success()
+        }
 
-        // 위치 가져오기 (실패 시 재시도)
         val latLon = if (LocationHelper.isUseGps(context)) {
             LocationHelper.getCurrentLocation(context) ?: LocationHelper.getSavedLocation(context)
         } else {
             LocationHelper.getSavedLocation(context)
-        } ?: return Result.retry()
+        }
+        if (latLon == null) {
+            Log.w(TAG, "◂ EXIT retry: no location available")
+            return Result.retry()
+        }
+        Log.i(TAG, "  location: lat=${latLon.lat} lon=${latLon.lon} label=${latLon.label}")
 
-        // 날씨 획득 — 앱 Application 이 WeatherWakeRuntime.configure() 호출 시점에
-        // BuildConfig.DEBUG 가드를 적용해 넘긴 override 값을 그대로 사용.
-        // release 빌드는 빈 문자열이 전달돼 이 분기가 타지 않음 (이중 가드).
         val override = WeatherWakeRuntime.weatherOverride
+        Log.i(TAG, "  override='$override'")
         val weather: WeatherSnapshot = if (override.isNotBlank()) {
             simulatedWeather(override, latLon.label)
         } else {
+            Log.i(TAG, "  → calling provider.getCurrentWeather (real API)")
             when (val r = provider.getCurrentWeather(latLon.lat, latLon.lon)) {
-                is AppResult.Success      -> r.data
-                is AppResult.NetworkError -> return Result.retry()
-                is AppResult.Error        -> return Result.retry()
+                is AppResult.Success      -> {
+                    Log.i(TAG, "  provider SUCCESS: type=${r.data.conditionType} " +
+                            "desc='${r.data.description}' rainMmh=${r.data.rainMmh} snowMmh=${r.data.snowMmh}")
+                    r.data
+                }
+                is AppResult.NetworkError -> {
+                    Log.w(TAG, "◂ EXIT retry: NetworkError code=${r.code} msg=${r.message}")
+                    return Result.retry()
+                }
+                is AppResult.Error        -> {
+                    Log.w(TAG, "◂ EXIT retry: Error ${r.exception?.javaClass?.simpleName} msg=${r.message}")
+                    return Result.retry()
+                }
             }
         }
 
@@ -77,6 +110,10 @@ class WeatherCheckWorker(
         // 실측 강수량 (mm/h). 제공자가 1h 필드를 생략하면 null (이슬비 3xx 등)
         val rainMmh = weather.rainMmh
         val snowMmh = weather.snowMmh
+
+        Log.i(TAG, "  condition=${weather.conditionType} diffMin=$diffMin rainMmh=$rainMmh snowMmh=$snowMmh " +
+                "rainAdv=${alarm.rainAdvanceMin} snowAdv=${alarm.snowAdvanceMin} " +
+                "rainSens=${alarm.rainSensitivity} snowSens=${alarm.snowSensitivity}")
 
         when (weather.conditionType) {
             WeatherConditionType.RAIN -> {
@@ -93,9 +130,14 @@ class WeatherCheckWorker(
                 // 해결. Cross-validation 이 RAIN 을 단언하면 일단 깨운다는 safety-first.
                 val triggered = if (rainMmh != null && rainMmh > 0f) rainMmh >= threshold
                                 else alarm.rainSensitivity <= 2
+                Log.i(TAG, "  RAIN branch: threshold=$threshold triggered=$triggered " +
+                        "diffMin($diffMin) > advance($advance)? ${diffMin > advance} isMoved=${alarm.isMoved}")
                 if (triggered && diffMin > advance && !alarm.isMoved) {
+                    Log.i(TAG, "  → ADVANCING alarm by $advance min, persisting isMoved=true")
                     AlarmScheduler.schedule(context, alarm, advance, weather.description)
                     db.alarmDao().setMoved(alarm.id, true, weather.description)
+                } else {
+                    Log.i(TAG, "  → not advancing (conditions not all met)")
                 }
             }
             WeatherConditionType.SNOW -> {
@@ -106,12 +148,19 @@ class WeatherCheckWorker(
                 // 이 통근에 미치는 영향은 실제로 민감도 "보통" 사용자에게 깨울 가치 있음.
                 val triggered = if (snowMmh != null && snowMmh > 0f) snowMmh >= threshold
                                 else alarm.snowSensitivity <= 2
+                Log.i(TAG, "  SNOW branch: threshold=$threshold triggered=$triggered " +
+                        "diffMin($diffMin) > advance($advance)? ${diffMin > advance} isMoved=${alarm.isMoved}")
                 if (triggered && diffMin > advance && !alarm.isMoved) {
+                    Log.i(TAG, "  → ADVANCING alarm by $advance min, persisting isMoved=true")
                     AlarmScheduler.schedule(context, alarm, advance, weather.description)
                     db.alarmDao().setMoved(alarm.id, true, weather.description)
+                } else {
+                    Log.i(TAG, "  → not advancing (conditions not all met)")
                 }
             }
             WeatherConditionType.CLEAR -> {
+                Log.i(TAG, "  CLEAR branch: isMoved=${alarm.isMoved} → " +
+                        if (alarm.isMoved) "restoring original time" else "no-op")
                 if (alarm.isMoved) {
                     AlarmScheduler.schedule(context, alarm, 0)
                     db.alarmDao().setMoved(alarm.id, false, "")
@@ -119,6 +168,7 @@ class WeatherCheckWorker(
             }
         }
 
+        Log.i(TAG, "◂ EXIT success: normal completion")
         return Result.success()
     }
 
