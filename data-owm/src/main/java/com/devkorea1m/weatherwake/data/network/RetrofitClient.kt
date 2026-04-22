@@ -1,6 +1,6 @@
 package com.devkorea1m.weatherwake.data.network
 
-import com.devkorea1m.weatherwake.BuildConfig
+import com.devkorea1m.weatherwake.data.owm.BuildConfig
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit

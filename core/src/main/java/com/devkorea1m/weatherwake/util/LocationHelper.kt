@@ -2,7 +2,7 @@ package com.devkorea1m.weatherwake.util
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.devkorea1m.weatherwake.R
+import com.devkorea1m.weatherwake.core.R
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource

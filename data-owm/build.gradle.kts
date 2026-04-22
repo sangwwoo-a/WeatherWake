@@ -17,9 +17,14 @@ android {
     }
 
     kotlinOptions { jvmTarget = "17" }
+
+    buildFeatures {
+        buildConfig = true
+    }
 }
 
 dependencies {
+    implementation(project(":core"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.retrofit)
     implementation(libs.retrofit.gson)

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="advance_none">없음</string>
+    <string name="advance_15min">15분</string>
+    <string name="advance_30min">30분</string>
+    <string name="advance_45min">45분</string>
+    <string name="advance_one_hour">1시간</string>
+    <string name="label_current_location_gps">현재 위치</string>
+</resources>
