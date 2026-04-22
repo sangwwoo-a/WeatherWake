@@ -82,10 +82,17 @@ class WeatherCheckWorker(
             WeatherConditionType.RAIN -> {
                 val threshold = rainThreshold(alarm.rainSensitivity)
                 val advance   = alarm.rainAdvanceMin
-                // rain.1h 수치가 있으면 임계값 비교, 없으면(이슬비 등 OWM 생략) 민감도가
-                // 아주민감(0) 또는 민감(1)일 때만 conditionType 코드만으로도 트리거
-                val triggered = if (rainMmh != null) rainMmh >= threshold
-                                else alarm.rainSensitivity <= 1
+                // mm/h 수치가 있고 > 0 이면 임계값 비교 — "드리즐·혼합강수 같은 소량 강수는
+                // 민감도에 따라 거른다" 정책. 그게 아니면 (수치 null, 또는 실측 0 인데 공급자가
+                // precipitation 코드를 단언하는 경우) 민감도 "보통(2)" 이하일 때
+                // conditionType 만으로도 트리거. "둔감(3)" 은 폭우 원하는 의도이므로 여전히
+                // 실측 수치 검증 필수 — 여기선 null 이면 트리거 안 함.
+                //
+                // KMA 혼합강수(PTY 2/6)와 OWM 이슬비(3xx) 같이 "비가 오지만 mm/h 작게 보고"
+                // 되는 케이스에서 보통 민감도 사용자가 앞당김 혜택을 놓치던 문제(v1.7 이전)
+                // 해결. Cross-validation 이 RAIN 을 단언하면 일단 깨운다는 safety-first.
+                val triggered = if (rainMmh != null && rainMmh > 0f) rainMmh >= threshold
+                                else alarm.rainSensitivity <= 2
                 if (triggered && diffMin > advance && !alarm.isMoved) {
                     AlarmScheduler.schedule(context, alarm, advance, weather.description)
                     db.alarmDao().setMoved(alarm.id, true, weather.description)
@@ -94,9 +101,11 @@ class WeatherCheckWorker(
             WeatherConditionType.SNOW -> {
                 val threshold = snowThreshold(alarm.snowSensitivity)
                 val advance   = alarm.snowAdvanceMin
-                // snow.1h 수치가 있으면 임계값 비교, 없으면 민감도가 아주민감(0)/민감(1)일 때 트리거
-                val triggered = if (snowMmh != null) snowMmh >= threshold
-                                else threshold <= 1.0f
+                // RAIN 과 동일 원칙: 수치 검증은 > 0 인 경우에만. 없거나 0 이면 보통 민감도까지
+                // 허용. 가벼운 눈발(KMA RN1="1mm 미만" → 0.1 로 파싱, 또는 OWM snow.1h 생략)
+                // 이 통근에 미치는 영향은 실제로 민감도 "보통" 사용자에게 깨울 가치 있음.
+                val triggered = if (snowMmh != null && snowMmh > 0f) snowMmh >= threshold
+                                else alarm.snowSensitivity <= 2
                 if (triggered && diffMin > advance && !alarm.isMoved) {
                     AlarmScheduler.schedule(context, alarm, advance, weather.description)
                     db.alarmDao().setMoved(alarm.id, true, weather.description)
