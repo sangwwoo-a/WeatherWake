@@ -125,10 +125,18 @@ class CrossValidatingWeatherProvider(
             WeatherConditionType.SNOW  -> snowScore
             WeatherConditionType.CLEAR -> max(rainScore, snowScore)
         }
-        val base = when (finalType) {
-            WeatherConditionType.RAIN  -> "비가 내리고 있어요 ☔"
-            WeatherConditionType.SNOW  -> "눈이 내리고 있어요 ❄️"
-            WeatherConditionType.CLEAR -> "비, 눈 감지 없음"
+        // primary(KMA 등 지역 특화) 가 같은 판정을 냈다면 그 description 을 그대로 살려
+        // 사용자가 "1차 공급자의 목소리" 를 UI 에서 직접 확인할 수 있게 한다.
+        // 판정이 달라져 안전우선 정책으로 finalType 이 바뀐 경우에만 aggregator 가
+        // 생성한 중립 문구 사용.
+        val base = if (p.conditionType == finalType && p.description.isNotBlank()) {
+            p.description
+        } else {
+            when (finalType) {
+                WeatherConditionType.RAIN  -> "비가 내리고 있어요 ☔"
+                WeatherConditionType.SNOW  -> "눈이 내리고 있어요 ❄️"
+                WeatherConditionType.CLEAR -> "비, 눈 감지 없음"
+            }
         }
         return "$base [${"%.1f".format(score)}/$threshold, $tag]"
     }
