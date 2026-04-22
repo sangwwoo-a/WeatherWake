@@ -30,10 +30,17 @@ class WeatherCheckWorker(
     params: WorkerParameters
 ) : CoroutineWorker(context, params) {
 
-    private val provider = WeatherWakeRuntime.weatherProvider
     private val db = AppDatabase.getInstance(context)
 
     override suspend fun doWork(): Result {
+        // 콜드스타트 레이스 가드 — 부팅 직후 WorkManager 가 pending work 를 복원할 때
+        // Application.onCreate() (= WeatherWakeRuntime.configure()) 보다 먼저 Worker
+        // 가 실행될 가능성이 있다. 그 경우 lateinit 필드 접근이 예외로 터져 알람 앞당김
+        // 기능이 조용히 실패한다. 미구성 상태면 retry 로 WorkManager backoff 에 맡기고
+        // (몇 분 뒤엔 onCreate 가 완료된 상태) 정상 경로로 복귀하도록 한다.
+        if (!WeatherWakeRuntime.isConfigured()) return Result.retry()
+        val provider = WeatherWakeRuntime.weatherProvider
+
         val alarmId = inputData.getInt(KEY_ALARM_ID, -1)
         if (alarmId == -1) return Result.failure()
 
