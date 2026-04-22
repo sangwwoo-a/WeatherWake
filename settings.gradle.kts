@@ -14,4 +14,9 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "WeatherWake"
-include(":app")
+include(":core")
+include(":data-owm")
+include(":data-kma")
+include(":data-nws")
+include(":app-kr")
+include(":app-us")
