@@ -17,7 +17,11 @@ internal class NwsRetrofitClient(userAgent: String) {
         .addInterceptor { chain ->
             val request = chain.request().newBuilder()
                 .header("User-Agent", userAgent)
-                .header("Accept", "application/ld+json")
+                // geo+json 은 "properties { ... }" 로 감싼 표준 GeoJSON 형식으로 반환.
+                // ld+json(JSON-LD)은 semantic web @context 를 활용해 필드가 root 로
+                // 평탄화되어 우리 DTO(NwsPointsResponse.properties) 와 매핑이 안 됨.
+                // 단순 DTO 매핑이 목적이므로 geo+json 사용.
+                .header("Accept", "application/geo+json")
                 .build()
             chain.proceed(request)
         }
