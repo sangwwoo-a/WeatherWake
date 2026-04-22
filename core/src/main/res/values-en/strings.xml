@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="advance_none">None</string>
+    <string name="advance_15min">15 min</string>
+    <string name="advance_30min">30 min</string>
+    <string name="advance_45min">45 min</string>
+    <string name="advance_one_hour">1 hour</string>
+    <string name="label_current_location_gps">Current Location</string>
+</resources>

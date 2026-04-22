@@ -1,7 +1,7 @@
 package com.devkorea1m.weatherwake.util
 
 import android.content.Context
-import com.devkorea1m.weatherwake.R
+import com.devkorea1m.weatherwake.core.R
 
 object AlarmConstants {
     /** 비트마스크: 일~토 모두 체크 = 매일 반복 */
