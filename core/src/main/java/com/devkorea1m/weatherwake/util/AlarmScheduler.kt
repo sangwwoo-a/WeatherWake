@@ -4,9 +4,8 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import com.devkorea1m.weatherwake.AlarmReceiver
-import com.devkorea1m.weatherwake.MainActivity
 import com.devkorea1m.weatherwake.data.model.AlarmEntity
+import com.devkorea1m.weatherwake.runtime.WeatherWakeRuntime
 import com.devkorea1m.weatherwake.worker.WeatherCheckWorker
 
 object AlarmScheduler {
@@ -54,7 +53,7 @@ object AlarmScheduler {
         val showPi = PendingIntent.getActivity(
             context,
             alarm.id + 50000,  // operationPi와 requestCode 충돌 방지
-            Intent(context, MainActivity::class.java),
+            Intent(context, WeatherWakeRuntime.mainActivityClass),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
@@ -86,7 +85,7 @@ object AlarmScheduler {
     /** 알람 취소 — 90분 전 날씨 체크 Worker도 같이 취소 */
     fun cancel(context: Context, alarmId: Int) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val intent = Intent(context, AlarmReceiver::class.java)
+        val intent = Intent(context, WeatherWakeRuntime.alarmReceiverClass)
         val pendingIntent = PendingIntent.getBroadcast(
             context, alarmId, intent,
             PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
@@ -100,7 +99,7 @@ object AlarmScheduler {
         alarm: AlarmEntity,
         movedReason: String,
         isMoved: Boolean
-    ) = Intent(context, AlarmReceiver::class.java).apply {
+    ) = Intent(context, WeatherWakeRuntime.alarmReceiverClass).apply {
         putExtra(EXTRA_ALARM_ID, alarm.id)
         putExtra(EXTRA_MOVED_REASON, movedReason)
         putExtra(EXTRA_IS_MOVED, isMoved)

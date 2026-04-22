@@ -2,14 +2,12 @@ package com.devkorea1m.weatherwake.worker
 
 import android.content.Context
 import androidx.work.*
-import com.devkorea1m.weatherwake.BuildConfig
 import com.devkorea1m.weatherwake.data.db.AppDatabase
 import com.devkorea1m.weatherwake.data.model.AlarmEntity
 import com.devkorea1m.weatherwake.data.model.WeatherConditionType
 import com.devkorea1m.weatherwake.data.repository.AppResult
-import com.devkorea1m.weatherwake.data.repository.WeatherRepository
-import com.devkorea1m.weatherwake.domain.WeatherProvider
 import com.devkorea1m.weatherwake.domain.WeatherSnapshot
+import com.devkorea1m.weatherwake.runtime.WeatherWakeRuntime
 import com.devkorea1m.weatherwake.util.AlarmConstants
 import com.devkorea1m.weatherwake.util.AlarmScheduler
 import com.devkorea1m.weatherwake.util.DateTimeUtils
@@ -32,7 +30,7 @@ class WeatherCheckWorker(
     params: WorkerParameters
 ) : CoroutineWorker(context, params) {
 
-    private val provider: WeatherProvider = WeatherRepository(BuildConfig.OWM_API_KEY)
+    private val provider = WeatherWakeRuntime.weatherProvider
     private val db = AppDatabase.getInstance(context)
 
     override suspend fun doWork(): Result {
@@ -53,9 +51,10 @@ class WeatherCheckWorker(
             LocationHelper.getSavedLocation(context)
         } ?: return Result.retry()
 
-        // 날씨 획득 — 디버그 빌드에서 weather.override 가 설정돼 있으면 그 값으로 시뮬레이션.
-        // release 빌드는 BuildConfig.DEBUG=false 라서 이 분기가 절대 타지 않음 (이중 가드).
-        val override = if (BuildConfig.DEBUG) BuildConfig.WEATHER_OVERRIDE else ""
+        // 날씨 획득 — 앱 Application 이 WeatherWakeRuntime.configure() 호출 시점에
+        // BuildConfig.DEBUG 가드를 적용해 넘긴 override 값을 그대로 사용.
+        // release 빌드는 빈 문자열이 전달돼 이 분기가 타지 않음 (이중 가드).
+        val override = WeatherWakeRuntime.weatherOverride
         val weather: WeatherSnapshot = if (override.isNotBlank()) {
             simulatedWeather(override, latLon.label)
         } else {
