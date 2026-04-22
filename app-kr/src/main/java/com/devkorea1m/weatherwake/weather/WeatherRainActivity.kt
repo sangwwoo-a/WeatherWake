@@ -12,8 +12,10 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.devkorea1m.weatherwake.R
 import com.devkorea1m.weatherwake.databinding.ActivityWeatherRainBinding
+import com.devkorea1m.weatherwake.domain.Region
 import com.devkorea1m.weatherwake.sound.SoundPickerActivity
 import com.devkorea1m.weatherwake.util.AlarmConstants
+import com.devkorea1m.weatherwake.util.currentRegion
 
 /**
  * 2단계: 비 앞당김 시간 + 민감도 선택
@@ -91,6 +93,15 @@ class WeatherRainActivity : AppCompatActivity() {
 
         b.btnRainBack.setOnClickListener { finish() }
         b.btnRainNext.setOnClickListener { goToSnow() }
+
+        // 지역 기반 하단 공급자 안내 문구 주입 — KR→KMA, US→NWS, 그 외→OWM 단독
+        b.tvWeatherInfo.setText(weatherInfoResFor(currentRegion(this)))
+    }
+
+    private fun weatherInfoResFor(region: Region): Int = when (region) {
+        Region.KR    -> R.string.label_weather_info_kr
+        Region.US    -> R.string.label_weather_info_us
+        Region.OTHER -> R.string.label_weather_info_global
     }
 
     private fun setSensitivity(level: Int) {

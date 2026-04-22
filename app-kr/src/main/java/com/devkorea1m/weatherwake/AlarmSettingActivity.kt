@@ -12,7 +12,9 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.devkorea1m.weatherwake.data.model.AlarmEntity
 import com.devkorea1m.weatherwake.databinding.ActivityAlarmSettingBinding
+import com.devkorea1m.weatherwake.domain.Region
 import com.devkorea1m.weatherwake.sound.SoundPickerActivity
+import com.devkorea1m.weatherwake.util.currentRegion
 import com.devkorea1m.weatherwake.viewmodel.AlarmViewModel
 import com.devkorea1m.weatherwake.weather.WeatherRainActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -229,8 +231,15 @@ class AlarmSettingActivity : AppCompatActivity() {
         val rainAdvancedTime = formatTimeOfDay(alarm.hour, alarm.minute, minusMinutes = alarm.rainAdvanceMin)
         val snowAdvancedTime = formatTimeOfDay(alarm.hour, alarm.minute, minusMinutes = alarm.snowAdvanceMin)
         val repeatLabel      = formatRepeatLabel(alarm.repeatDays)
+        // 현재 저장된 좌표 기준 지역을 판정해 "한국 기상청 / 미국 NWS / OpenWeatherMap 단독"
+        // 셋 중 맞는 본문 리소스 선택. 해외 여행 중 알람 수정하는 경우도 정확히 반영됨.
+        val bodyResId = when (currentRegion(this)) {
+            Region.KR    -> R.string.dialog_weather_notice_body_kr
+            Region.US    -> R.string.dialog_weather_notice_body_us
+            Region.OTHER -> R.string.dialog_weather_notice_body_global
+        }
         val body = getString(
-            R.string.dialog_weather_notice_body,
+            bodyResId,
             checkTime,              // %1$s — 날씨 체크 시점 (알람 90분 전)
             alarmTime,              // %2$s — 알람 발동 시각 (원래 시각)
             rainAdvancedTime,       // %3$s — 비 감지 시 울릴 시각
