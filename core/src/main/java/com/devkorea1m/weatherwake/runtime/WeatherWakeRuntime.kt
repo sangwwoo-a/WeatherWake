@@ -49,4 +49,17 @@ object WeatherWakeRuntime {
         this.weatherProvider    = weatherProvider
         this.weatherOverride    = weatherOverride
     }
+
+    /**
+     * configure() 가 호출되었는지 여부. WorkManager 가 Application.onCreate 보다
+     * 먼저 Worker 를 인스턴스화할 수 있는 콜드스타트(부팅 직후 pending work
+     * 복원 등) 상황에서 Worker 가 lateinit 접근 전에 검사하는 가드용.
+     *
+     * false 면 Worker 는 Result.retry() 로 WorkManager backoff 사이클에 맡기고,
+     * 몇 분 뒤 Application.onCreate 가 완료된 상태에서 재시도되어 정상 진행된다.
+     */
+    fun isConfigured(): Boolean =
+        ::alarmReceiverClass.isInitialized &&
+        ::mainActivityClass.isInitialized &&
+        ::weatherProvider.isInitialized
 }
