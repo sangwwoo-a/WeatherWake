@@ -100,6 +100,9 @@
     <string name="message_exact_alarm_permission_body">To ring the alarm at the exact time, the \'Schedule Alarms and Reminders\' permission is required.\nPlease allow it in Settings.</string>
     <string name="dialog_weather_notice_title">━ Settings for this alarm ━</string>
     <string name="dialog_weather_notice_body">Name : \u200B%8$s\u200B\nAlarm time : %2$s\nRepeat : %7$s\n\nThe app automatically queries each of the Korea Meteorological Administration and OpenWeatherMap once, 90 minutes before the alarm time, and cross-validates the results.</string>
+    <string name="dialog_weather_notice_body_kr">Name : \u200B%8$s\u200B\nAlarm time : %2$s\nRepeat : %7$s\n\nThe app automatically queries each of the Korea Meteorological Administration and OpenWeatherMap once, 90 minutes before the alarm time, and cross-validates the results.</string>
+    <string name="dialog_weather_notice_body_us">Name : \u200B%8$s\u200B\nAlarm time : %2$s\nRepeat : %7$s\n\nThe app automatically queries each of the US National Weather Service (NWS) and OpenWeatherMap once, 90 minutes before the alarm time, and cross-validates the results.</string>
+    <string name="dialog_weather_notice_body_global">Name : \u200B%8$s\u200B\nAlarm time : %2$s\nRepeat : %7$s\n\nThe app automatically checks OpenWeatherMap once, 90 minutes before the alarm time.</string>
     <string name="dialog_weather_notice_detail_title">Advance behavior details</string>
     <string name="dialog_weather_notice_detail_body">Based on the result:\nExample) For \'\u200B%8$s\u200B\':\n\n  • Rain detected  → rings at %3$s (%5$d min earlier)\n  • Snow detected  → rings at %4$s (%6$d min earlier)\n  • Clear/cloudy   → rings at %2$s (normal)\n\nWeather changes between %1$s and %2$s won\'t affect the alarm.</string>
     <string name="dialog_weather_notice_learn_more">Learn more</string>
@@ -114,7 +117,11 @@
     <string name="message_battery_opt_body">Your alarm itself will ring on time regardless of this setting.\n\nHowever, the feature that checks the weather 90 minutes before the alarm and wakes you earlier when rain or snow is detected works more reliably with this exception. (WeatherWake checks the weather only once per alarm to keep battery use minimal.)\n\nWithout it, the weather-based early wake-up may be delayed by a few minutes.</string>
     <string name="action_open_settings">Go to Settings</string>
     <string name="weather_attribution">KMA National Climate Data Center + OpenWeatherMap (cross-validated)</string>
+    <string name="weather_attribution_kr">KMA National Climate Data Center + OpenWeatherMap (cross-validated)</string>
+    <string name="weather_attribution_us">NWS + OpenWeatherMap (cross-validated)</string>
+    <string name="weather_attribution_global">Powered by OpenWeatherMap</string>
     <string name="weather_attribution_kma">KMA National Climate Data Center</string>
+    <string name="weather_attribution_nws">NWS</string>
     <string name="weather_attribution_owm">OpenWeatherMap</string>
 
     <!-- Main Activity - Additional -->
@@ -156,6 +163,9 @@
     <string name="snow_desc_normal">⛄ Snow that starts covering roads and cars</string>
     <string name="snow_desc_low">🌨💨 Blizzard that piles ankle-high and slows traffic</string>
     <string name="label_owm_weather_info">ℹ️ 90 minutes before each alarm, real-time weather from\nthe KMA National Climate Data Center and OpenWeatherMap\nis cross-validated and reflected here.\n\nChanges after this check are not reflected,\nso the actual weather at alarm time may differ.</string>
+    <string name="label_weather_info_kr">ℹ️ 90 minutes before each alarm, real-time weather from\nthe KMA National Climate Data Center and OpenWeatherMap\nis cross-validated and reflected here.\n\nChanges after this check are not reflected,\nso the actual weather at alarm time may differ.</string>
+    <string name="label_weather_info_us">ℹ️ 90 minutes before each alarm, real-time weather from\nthe US National Weather Service (NWS) and OpenWeatherMap\nis cross-validated and reflected here.\n\nChanges after this check are not reflected,\nso the actual weather at alarm time may differ.</string>
+    <string name="label_weather_info_global">ℹ️ 90 minutes before each alarm, real-time weather\nfrom OpenWeatherMap is reflected here.\n\nChanges after this check are not reflected,\nso the actual weather at alarm time may differ.</string>
     <string name="action_back">Back</string>
     <string name="action_snow_setup">Snow setup →</string>
     <string name="action_done">Done</string>

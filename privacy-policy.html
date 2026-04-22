@@ -582,7 +582,19 @@
               <td><strong>Current Weather API</strong></td>
               <td>OpenWeatherMap<br><small>(openweathermap.org)</small></td>
               <td>위도·경도 (좌표만)</td>
-              <td>실시간 날씨 데이터(비·눈·맑음) 조회</td>
+              <td>실시간 날씨 데이터(비·눈·맑음) 조회. 모든 지역에서 호출.</td>
+            </tr>
+            <tr>
+              <td><strong>초단기실황 API</strong></td>
+              <td>기상청 공공데이터포털<br><small>(data.go.kr / data.kma.go.kr)</small></td>
+              <td>격자 좌표 nx·ny (위경도를 Lambert Conformal Conic 로 변환)</td>
+              <td>한국 좌표 감지 시 OpenWeatherMap 과 교차 검증.</td>
+            </tr>
+            <tr>
+              <td><strong>Points / Observations API</strong></td>
+              <td>US National Weather Service<br><small>(api.weather.gov)</small></td>
+              <td>위도·경도 (좌표만), User-Agent 헤더(앱명·연락처)</td>
+              <td>미국 좌표 감지 시 OpenWeatherMap 과 교차 검증.</td>
             </tr>
             <tr>
               <td><strong>FusedLocation Provider</strong></td>
@@ -595,7 +607,13 @@
 
         <div class="notice yellow" style="margin-top:14px;">
           <span class="ni">⚠️</span>
-          <span>OpenWeatherMap의 개인정보 처리 방침은 <a href="https://openweathermap.org/privacy-policy" target="_blank" style="color:#92400E; font-weight:600;">openweathermap.org/privacy-policy</a>에서 확인할 수 있습니다. 날씨 API 호출 시 위도·경도만 전송되며, 식별 가능한 개인정보는 포함되지 않습니다.</span>
+          <span>
+            각 공급자 개인정보 처리 방침:<br>
+            • OpenWeatherMap — <a href="https://openweathermap.org/privacy-policy" target="_blank" style="color:#92400E; font-weight:600;">openweathermap.org/privacy-policy</a><br>
+            • 기상청 공공데이터포털 — <a href="https://www.data.go.kr/ugs/selectPortalInfoView.do" target="_blank" style="color:#92400E; font-weight:600;">data.go.kr</a><br>
+            • US National Weather Service — <a href="https://www.weather.gov/privacy" target="_blank" style="color:#92400E; font-weight:600;">weather.gov/privacy</a><br>
+            모든 경우 좌표 외에 식별 가능한 개인정보는 전송되지 않습니다. NWS 는 User-Agent 헤더로 앱 이름과 브랜드 사이트 URL(연락처)을 받습니다.
+          </span>
         </div>
 
         <div class="notice" style="margin-top:10px;">
