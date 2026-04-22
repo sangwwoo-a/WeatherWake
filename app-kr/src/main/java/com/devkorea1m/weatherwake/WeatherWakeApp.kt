@@ -4,7 +4,9 @@ import android.app.Application
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import com.devkorea1m.weatherwake.data.kma.KmaWeatherProvider
 import com.devkorea1m.weatherwake.data.repository.WeatherRepository
+import com.devkorea1m.weatherwake.domain.CrossValidatingWeatherProvider
 import com.devkorea1m.weatherwake.runtime.WeatherWakeRuntime
 
 class WeatherWakeApp : Application() {
@@ -14,10 +16,17 @@ class WeatherWakeApp : Application() {
         // :core 의 AlarmScheduler / WeatherCheckWorker 가 app-kr 의 구체 타입과
         // 날씨 제공자를 찾을 수 있도록 Runtime 에 등록. WorkManager 가 첫 Worker 를
         // 인스턴스화하기 전에 반드시 완료돼야 하므로 onCreate 최상단에 배치.
+        // WeatherProvider 조합 — KMA(지역 특화) 1차, OWM(범용) 2차 교차검증.
+        // 기본 threshold 0.3 에서 어느 한쪽이라도 비/눈 감지하면 트리거 (안전우선).
+        // KMA serviceKey 가 공백이면 CrossValidating 내부에서 자동 OWM 폴백.
+        val provider = CrossValidatingWeatherProvider(
+            primary   = KmaWeatherProvider(BuildConfig.KMA_SERVICE_KEY),
+            secondary = WeatherRepository(BuildConfig.OWM_API_KEY)
+        )
         WeatherWakeRuntime.configure(
             alarmReceiverClass = AlarmReceiver::class.java,
             mainActivityClass  = MainActivity::class.java,
-            weatherProvider    = WeatherRepository(BuildConfig.OWM_API_KEY),
+            weatherProvider    = provider,
             weatherOverride    = if (BuildConfig.DEBUG) BuildConfig.WEATHER_OVERRIDE else ""
         )
         createNotificationChannels()

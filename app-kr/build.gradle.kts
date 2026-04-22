@@ -20,12 +20,19 @@ android {
         applicationId = "com.devkorea1m.weatherwake"
         minSdk = 26
         targetSdk = 35
-        versionCode = 60
-        versionName = "1.6.0"
+        versionCode = 70
+        versionName = "1.7.0"
 
         buildConfigField(
             "String", "OWM_API_KEY",
             "\"${localProps.getProperty("owm.api.key", "")}\""
+        )
+
+        // 기상청(공공데이터포털) 초단기실황 serviceKey. KmaWeatherProvider 가 사용.
+        // 빈 값이면 CrossValidatingWeatherProvider 가 KMA 호출 실패를 OWM 로 폴백.
+        buildConfigField(
+            "String", "KMA_SERVICE_KEY",
+            "\"${localProps.getProperty("kma.service.key", "")}\""
         )
 
         // 디버그 전용 날씨 오버라이드. release 빌드엔 영향 없음 (WeatherCheckWorker가
@@ -59,6 +66,7 @@ android {
 dependencies {
     implementation(project(":core"))
     implementation(project(":data-owm"))
+    implementation(project(":data-kma"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

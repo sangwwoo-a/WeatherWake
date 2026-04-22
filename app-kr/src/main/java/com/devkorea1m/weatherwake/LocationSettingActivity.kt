@@ -680,10 +680,8 @@ class LocationSettingActivity : AppCompatActivity() {
                 LocationHelper.saveLocation(this@LocationSettingActivity, latLon)
                 b.tvCurrentLocation.text = getString(R.string.message_location_set, latLon.label)
                 // GPS 위치로 날씨 확인
-                when (val result = WeatherRepository(BuildConfig.OWM_API_KEY).getCurrentWeather(
-                    lat = latLon.lat,
-                    lon = latLon.lon
-                )) {
+                when (val result = com.devkorea1m.weatherwake.runtime.WeatherWakeRuntime
+                    .weatherProvider.getCurrentWeather(lat = latLon.lat, lon = latLon.lon)) {
                     is AppResult.Success ->
                         b.tvCurrentLocation.text = getString(R.string.message_location_set, result.data.cityName)
                     else ->

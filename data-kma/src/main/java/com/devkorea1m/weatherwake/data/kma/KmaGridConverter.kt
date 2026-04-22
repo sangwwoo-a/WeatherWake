@@ -43,7 +43,9 @@ object KmaGridConverter {
         theta *= sn
 
         val nx = floor(ra * sin(theta) + XO + 0.5).toInt()
-        val ny = floor(-ra * cos(theta) + YO + 0.5).toInt()
+        // ⚠️ 반드시 `ro - ra*cos(theta) + YO`. ro 를 빼먹으면 대한민국 전역에서
+        // ny 가 -1200대 음수로 나와 KMA API 가 "파라미터 오류(resultCode=10)" 로 거절한다.
+        val ny = floor(ro - ra * cos(theta) + YO + 0.5).toInt()
         return Grid(nx, ny)
     }
 }
