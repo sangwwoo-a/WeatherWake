@@ -24,13 +24,20 @@
         android:theme="@style/Theme.WeatherWake"
         android:resizeableActivity="true">
 
-        <activity android:name=".MainActivity"
-            android:exported="true">
+        <!-- 앱 최초 진입: 2초 DevKorea1m 브랜드 스플래시 후 MainActivity 로 전환.
+             excludeFromRecents 로 최근 앱 목록엔 MainActivity 가 잡히도록. -->
+        <activity android:name=".SplashActivity"
+            android:exported="true"
+            android:theme="@style/Theme.WeatherWake.Splash"
+            android:excludeFromRecents="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
+        <activity android:name=".MainActivity"
+            android:exported="false"/>
 
         <activity android:name=".AlarmSettingActivity"
             android:exported="false"/>

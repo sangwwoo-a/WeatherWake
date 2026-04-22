@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Splash 화면 — "DevKorea1m" 브랜드 마크 2초 표시.
+  배경색 #0A0A0B 은 브랜드 스펙의 dark-anchor. "DevKorea" 는 onSurface
+  의 dark 버전 (#F2F3F5), "1m" 은 YouTube Red (#FF0000) 고정.
+  SpannableStringBuilder 구성은 MainActivity.setupBrandWatermark 패턴과
+  동일하지만 스플래시용으로 36sp 크게 렌더.
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0A0A0B">
+
+    <TextView
+        android:id="@+id/tvSplashBrand"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:textSize="36sp"
+        android:textStyle="bold"
+        android:letterSpacing="0.01"
+        android:includeFontPadding="false"
+        android:contentDescription="DevKorea1m"/>
+
+</FrameLayout>
