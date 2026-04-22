@@ -20,8 +20,8 @@ android {
         applicationId = "com.devkorea1m.weatherwake"
         minSdk = 26
         targetSdk = 35
-        versionCode = 19
-        versionName = "1.1.9"
+        versionCode = 30
+        versionName = "1.3.0"
 
         buildConfigField(
             "String", "OWM_API_KEY",
