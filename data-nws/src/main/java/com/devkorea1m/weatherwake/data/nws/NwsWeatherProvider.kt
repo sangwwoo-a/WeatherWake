@@ -73,7 +73,7 @@ class NwsWeatherProvider(
 
         return WeatherSnapshot(
             conditionType = condition,
-            description   = "${textDescription.ifBlank { "—" }} (NWS)",
+            description   = textDescription.ifBlank { "—" },
             tempCelsius   = tempC,
             cityName      = city,
             rainMmh       = if (condition == WeatherConditionType.RAIN) rainMmh else null,

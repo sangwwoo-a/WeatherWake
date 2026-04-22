@@ -119,16 +119,11 @@ class CrossValidatingWeatherProvider(
         snowScore: Float
     ): String {
         val agree = p.conditionType == s.conditionType
-        val tag = if (agree) "일치" else "불일치(안전우선)"
-        val score = when (finalType) {
-            WeatherConditionType.RAIN  -> rainScore
-            WeatherConditionType.SNOW  -> snowScore
-            WeatherConditionType.CLEAR -> max(rainScore, snowScore)
-        }
+
         // primary(KMA 등 지역 특화) 가 같은 판정을 냈다면 그 description 을 그대로 살려
-        // 사용자가 "1차 공급자의 목소리" 를 UI 에서 직접 확인할 수 있게 한다.
-        // 판정이 달라져 안전우선 정책으로 finalType 이 바뀐 경우에만 aggregator 가
-        // 생성한 중립 문구 사용.
+        // 사용자가 1차 공급자의 목소리를 UI 에서 직접 확인할 수 있게 한다. 판정이
+        // 달라진 경우(안전우선 정책으로 finalType 이 바뀐 경우) 에만 aggregator 가
+        // 생성한 중립 문구를 쓴다.
         val base = if (p.conditionType == finalType && p.description.isNotBlank()) {
             p.description
         } else {
@@ -138,7 +133,12 @@ class CrossValidatingWeatherProvider(
                 WeatherConditionType.CLEAR -> "비, 눈 감지 없음"
             }
         }
-        return "$base [${"%.1f".format(score)}/$threshold, $tag]"
+
+        // 공급자 간 합의가 이루어졌으면 깨끗하게 base 만 표시. 불일치로 safety-first
+        // 가 발동한 경우에만 사용자가 왜 앞당김이 일어났는지 이해할 수 있도록
+        // 짧은 사유 문구를 덧붙인다. 디버그 점수([0.x/0.3]) 는 로그에서만 의미가
+        // 있으므로 UI 문구에서는 생략.
+        return if (agree) base else "$base · 안전우선 반영"
     }
 
     private fun maxOfNullable(a: Float?, b: Float?): Float? = when {

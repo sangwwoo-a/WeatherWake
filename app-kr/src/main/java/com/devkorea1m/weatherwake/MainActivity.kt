@@ -367,14 +367,22 @@ class MainActivity : AppCompatActivity() {
 
         val sb = SpannableStringBuilder(full)
 
+        // 기본 ClickableSpan 은 시스템 링크색(파란색) + 밑줄을 강제로 덧씌워 주변 텍스트와
+        // 시각적 불일치가 생긴다. 여기선 공급자 표기 자체가 문장의 일부로 읽히길 원하므로
+        // updateDrawState 로 링크 스타일을 제거 — TextView 의 원래 color/size 가 그대로
+        // 상속되어 "교차 검증 중" 과 동일한 폰트로 보이면서 여전히 탭 가능.
+        fun linkSpan(url: String) = object : ClickableSpan() {
+            override fun onClick(widget: View) { openUrl(url) }
+            override fun updateDrawState(ds: android.text.TextPaint) {
+                ds.isUnderlineText = false
+                // color 는 일부러 건드리지 않음 → TextView 의 textColor(text_hint) 가 유지됨
+            }
+        }
+
         val kmaStart = full.indexOf(kmaName)
         if (kmaStart >= 0) {
             sb.setSpan(
-                object : ClickableSpan() {
-                    override fun onClick(widget: View) {
-                        openUrl("https://data.kma.go.kr")
-                    }
-                },
+                linkSpan("https://data.kma.go.kr"),
                 kmaStart, kmaStart + kmaName.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
             )
         }
@@ -382,11 +390,7 @@ class MainActivity : AppCompatActivity() {
         val owmStart = full.indexOf(owmName)
         if (owmStart >= 0) {
             sb.setSpan(
-                object : ClickableSpan() {
-                    override fun onClick(widget: View) {
-                        openUrl("https://openweathermap.org")
-                    }
-                },
+                linkSpan("https://openweathermap.org"),
                 owmStart, owmStart + owmName.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
             )
         }
