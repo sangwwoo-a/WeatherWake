@@ -14,8 +14,11 @@ import android.os.PowerManager
 import android.provider.Settings
 import android.text.SpannableStringBuilder
 import android.text.Spanned
+import android.text.method.LinkMovementMethod
+import android.text.style.ClickableSpan
 import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
+import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -113,12 +116,8 @@ class MainActivity : AppCompatActivity() {
             refreshWeatherCard()
         }
 
-        // OpenWeatherMap attribution — 약관 준수: 날씨 데이터 출처 링크
-        b.tvWeatherAttribution.setOnClickListener {
-            runCatching {
-                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://openweathermap.org")))
-            }
-        }
+        // 날씨 데이터 출처 — KMA + OWM 각각 별도 링크로 ClickableSpan 주입
+        setupWeatherAttribution()
 
         // DevKorea1m 브랜드 워터마크 — "Built by DevKorea[1m]" 형태, "1m"은 YouTube Red, 탭 시 홈페이지
         setupBrandWatermark()
@@ -346,6 +345,61 @@ class MainActivity : AppCompatActivity() {
                     b.tvWeatherTemp.text   = ""
                 }
             }
+        }
+    }
+
+    /**
+     * 상단 날씨 카드 하단의 출처 표시 설정.
+     *
+     * "기상청 국가기후데이터센터 + OpenWeatherMap 교차 검증 중" — 기관명 각각을
+     * ClickableSpan 으로 감싸서 탭 시 해당 공식 사이트가 열린다. 두 공급자의
+     * 약관(공공데이터포털 · OWM) 이 모두 표시·링크를 요구하므로 단일 링크 대신
+     * 분리 링크 방식.
+     *
+     * 문자열에서 기관명 위치는 indexOf 로 런타임에 찾는다 — 로케일마다 어순이
+     * 달라도 기관명 자체는 그대로 박혀있어 강건. 일치하지 않으면 span 만 생략
+     * (텍스트는 그대로 보이므로 fail-safe).
+     */
+    private fun setupWeatherAttribution() {
+        val full    = getString(R.string.weather_attribution)
+        val kmaName = getString(R.string.weather_attribution_kma)
+        val owmName = getString(R.string.weather_attribution_owm)
+
+        val sb = SpannableStringBuilder(full)
+
+        val kmaStart = full.indexOf(kmaName)
+        if (kmaStart >= 0) {
+            sb.setSpan(
+                object : ClickableSpan() {
+                    override fun onClick(widget: View) {
+                        openUrl("https://data.kma.go.kr")
+                    }
+                },
+                kmaStart, kmaStart + kmaName.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        }
+
+        val owmStart = full.indexOf(owmName)
+        if (owmStart >= 0) {
+            sb.setSpan(
+                object : ClickableSpan() {
+                    override fun onClick(widget: View) {
+                        openUrl("https://openweathermap.org")
+                    }
+                },
+                owmStart, owmStart + owmName.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        }
+
+        b.tvWeatherAttribution.text = sb
+        // ClickableSpan 이 탭을 받으려면 LinkMovementMethod 가 필수
+        b.tvWeatherAttribution.movementMethod = LinkMovementMethod.getInstance()
+    }
+
+    /** URL 열기 — 크래시 방지 (브라우저 없는 기기 대응) */
+    private fun openUrl(url: String) {
+        runCatching {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
         }
     }
 
