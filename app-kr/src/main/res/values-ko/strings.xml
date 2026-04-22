@@ -113,9 +113,14 @@
     <string name="message_battery_opt_title">🔋 배터리 최적화 예외 (권장)</string>
     <string name="message_battery_opt_body">알람 자체는 시스템이 정시에 깨워드려요.\n\n다만 알람 시각 90분 전에 날씨를 확인해 비·눈 감지 시 더 일찍 깨워주는 기능은 이 예외가 있어야 정확하게 동작합니다. (WeatherWake는 하루 알람당 딱 한 번만 날씨를 확인해 배터리 소모를 최소화합니다.)\n\n허용하지 않으면 날씨 앞당김이 몇 분 지연될 수 있어요.</string>
     <string name="action_open_settings">설정으로</string>
-    <!-- 상단 날씨 카드 하단 출처 표시. 2개 공급자 링크가 ClickableSpan 으로 삽입됨 -->
+    <!-- 상단 날씨 카드 하단 출처 표시. 공급자 이름은 ClickableSpan 으로 링크화.
+         MainActivity 가 좌표 기반 Region 판정 결과에 따라 아래 3개 중 하나를 주입. -->
     <string name="weather_attribution">기상청 국가기후데이터센터 + OpenWeatherMap 교차 검증 중</string>
+    <string name="weather_attribution_kr">기상청 국가기후데이터센터 + OpenWeatherMap 교차 검증 중</string>
+    <string name="weather_attribution_us">NWS + OpenWeatherMap 교차 검증 중</string>
+    <string name="weather_attribution_global">OpenWeatherMap 제공</string>
     <string name="weather_attribution_kma">기상청 국가기후데이터센터</string>
+    <string name="weather_attribution_nws">NWS</string>
     <string name="weather_attribution_owm">OpenWeatherMap</string>
 
     <!-- Main Activity - Additional -->

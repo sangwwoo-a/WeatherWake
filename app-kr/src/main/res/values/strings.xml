@@ -114,7 +114,11 @@
     <string name="message_battery_opt_body">Your alarm itself will ring on time regardless of this setting.\n\nHowever, the feature that checks the weather 90 minutes before the alarm and wakes you earlier when rain or snow is detected works more reliably with this exception. (WeatherWake checks the weather only once per alarm to keep battery use minimal.)\n\nWithout it, the weather-based early wake-up may be delayed by a few minutes.</string>
     <string name="action_open_settings">Go to Settings</string>
     <string name="weather_attribution">KMA National Climate Data Center + OpenWeatherMap (cross-validated)</string>
+    <string name="weather_attribution_kr">KMA National Climate Data Center + OpenWeatherMap (cross-validated)</string>
+    <string name="weather_attribution_us">NWS + OpenWeatherMap (cross-validated)</string>
+    <string name="weather_attribution_global">Powered by OpenWeatherMap</string>
     <string name="weather_attribution_kma">KMA National Climate Data Center</string>
+    <string name="weather_attribution_nws">NWS</string>
     <string name="weather_attribution_owm">OpenWeatherMap</string>
 
     <!-- Main Activity - Additional -->

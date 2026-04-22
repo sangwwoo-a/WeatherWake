@@ -28,10 +28,9 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
-import com.devkorea1m.weatherwake.BuildConfig
 import com.devkorea1m.weatherwake.data.model.WeatherConditionType
 import com.devkorea1m.weatherwake.data.repository.AppResult
-import com.devkorea1m.weatherwake.data.repository.WeatherRepository
+import com.devkorea1m.weatherwake.domain.Region
 import com.devkorea1m.weatherwake.databinding.ActivityMainBinding
 import com.devkorea1m.weatherwake.util.LocationHelper
 import com.devkorea1m.weatherwake.viewmodel.AlarmViewModel
@@ -116,8 +115,9 @@ class MainActivity : AppCompatActivity() {
             refreshWeatherCard()
         }
 
-        // 날씨 데이터 출처 — KMA + OWM 각각 별도 링크로 ClickableSpan 주입
-        setupWeatherAttribution()
+        // 날씨 데이터 출처 — 초기에는 KR 기본(한국 사용자 가정). refreshWeatherCard()
+        // 에서 실제 좌표를 얻으면 Region 재판정 후 다시 호출되어 US / OTHER 로 전환됨.
+        setupWeatherAttribution(Region.KR)
 
         // DevKorea1m 브랜드 워터마크 — "Built by DevKorea[1m]" 형태, "1m"은 YouTube Red, 탭 시 홈페이지
         setupBrandWatermark()
@@ -310,6 +310,9 @@ class MainActivity : AppCompatActivity() {
 
                 b.tvWeatherCity.text   = "📍 ${latLon.label}"
                 b.tvWeatherStatus.text = getString(R.string.message_checking_weather)
+                // 실제 좌표 확보 시점에 attribution 을 해당 region 으로 업데이트.
+                // KR 기본값과 같은 지역이면 no-op 이지만 미국 출장 중 등에서는 실시간 전환됨.
+                setupWeatherAttribution(Region.fromCoordinates(latLon.lat, latLon.lon))
 
                 when (val result = com.devkorea1m.weatherwake.runtime.WeatherWakeRuntime
                     .weatherProvider.getCurrentWeather(lat = latLon.lat, lon = latLon.lon)) {
@@ -360,17 +363,30 @@ class MainActivity : AppCompatActivity() {
      * 달라도 기관명 자체는 그대로 박혀있어 강건. 일치하지 않으면 span 만 생략
      * (텍스트는 그대로 보이므로 fail-safe).
      */
-    private fun setupWeatherAttribution() {
-        val full    = getString(R.string.weather_attribution)
-        val kmaName = getString(R.string.weather_attribution_kma)
-        val owmName = getString(R.string.weather_attribution_owm)
+    /**
+     * 상단 날씨 카드 하단 출처 표시를 [region] 에 맞춰 주입.
+     *
+     * - KR: "기상청 국가기후데이터센터 + OpenWeatherMap 교차 검증 중"
+     * - US: "NWS + OpenWeatherMap 교차 검증 중"
+     * - OTHER: "OpenWeatherMap 제공"
+     *
+     * 해당 Region 에서 실제로 호출되는 공급자 이름만 링크화 (OWM 은 항상 포함,
+     * KMA 는 KR 에서만, NWS 는 US 에서만). OTHER 지역에선 OWM 단독이므로
+     * KMA/NWS 링크 없음 — 약관상 공급자 표기 의무도 OWM 만 해당됨.
+     */
+    private fun setupWeatherAttribution(region: Region) {
+        val full = getString(when (region) {
+            Region.KR    -> R.string.weather_attribution_kr
+            Region.US    -> R.string.weather_attribution_us
+            Region.OTHER -> R.string.weather_attribution_global
+        })
 
         val sb = SpannableStringBuilder(full)
 
         // 기본 ClickableSpan 은 시스템 링크색(파란색) + 밑줄을 강제로 덧씌워 주변 텍스트와
         // 시각적 불일치가 생긴다. 여기선 공급자 표기 자체가 문장의 일부로 읽히길 원하므로
         // updateDrawState 로 링크 스타일을 제거 — TextView 의 원래 color/size 가 그대로
-        // 상속되어 "교차 검증 중" 과 동일한 폰트로 보이면서 여전히 탭 가능.
+        // 상속되어 본문과 동일한 폰트로 보이면서 여전히 탭 가능.
         fun linkSpan(url: String) = object : ClickableSpan() {
             override fun onClick(widget: View) { openUrl(url) }
             override fun updateDrawState(ds: android.text.TextPaint) {
@@ -379,20 +395,20 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        val kmaStart = full.indexOf(kmaName)
-        if (kmaStart >= 0) {
-            sb.setSpan(
-                linkSpan("https://data.kma.go.kr"),
-                kmaStart, kmaStart + kmaName.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
-        }
-
-        val owmStart = full.indexOf(owmName)
-        if (owmStart >= 0) {
-            sb.setSpan(
-                linkSpan("https://openweathermap.org"),
-                owmStart, owmStart + owmName.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
+        // 공급자별 링크 텍스트 + URL — 해당 region 에서 실제 호출되는 것만 span 적용.
+        val spans: List<Triple<String, String, Boolean>> = listOf(
+            Triple(getString(R.string.weather_attribution_kma), "https://data.kma.go.kr",      region == Region.KR),
+            Triple(getString(R.string.weather_attribution_nws), "https://www.weather.gov",     region == Region.US),
+            Triple(getString(R.string.weather_attribution_owm), "https://openweathermap.org",  true)  // OWM 은 모든 region 에서
+        )
+        spans.filter { it.third }.forEach { (name, url, _) ->
+            val start = full.indexOf(name)
+            if (start >= 0) {
+                sb.setSpan(
+                    linkSpan(url),
+                    start, start + name.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+            }
         }
 
         b.tvWeatherAttribution.text = sb

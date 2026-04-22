@@ -20,8 +20,8 @@ android {
         applicationId = "com.devkorea1m.weatherwake"
         minSdk = 26
         targetSdk = 35
-        versionCode = 70
-        versionName = "1.7.0"
+        versionCode = 80
+        versionName = "1.8.0"
 
         buildConfigField(
             "String", "OWM_API_KEY",
@@ -67,6 +67,7 @@ dependencies {
     implementation(project(":core"))
     implementation(project(":data-owm"))
     implementation(project(":data-kma"))
+    implementation(project(":data-nws"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
