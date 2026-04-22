@@ -17,20 +17,20 @@ class AlarmViewModel(app: Application) : AndroidViewModel(app) {
     fun addAlarm(alarm: AlarmEntity) = viewModelScope.launch {
         val id    = dao.insert(alarm).toInt()
         val saved = alarm.copy(id = id)
+        // AlarmScheduler.schedule 내부에서 이미 (isEnabled && weatherTrigger) 일 때
+        // WeatherCheckWorker.scheduleFor 를 부르므로 여기서 중복 호출 금지.
+        // 중복 호출 시 REPLACE 정책으로 Worker 가 2 ~ 3 번 연속 실행돼 NWS/OWM API
+        // 쿼터만 낭비됨 (v1.8 on-device 로그에서 관측된 이슈).
         AlarmScheduler.schedule(getApplication(), saved)
-        // 날씨 연동이 켜진 경우에만 알람 90분 전 날씨 체크 예약
-        if (saved.weatherTrigger) {
-            WeatherCheckWorker.scheduleFor(getApplication(), saved)
-        }
     }
 
     fun updateAlarm(alarm: AlarmEntity) = viewModelScope.launch {
         dao.update(alarm)
-        // 기존 날씨 체크 작업 취소 후 재등록
+        // 기존 날씨 체크 작업 취소 후 AlarmScheduler.schedule 로 재등록.
+        // schedule 이 weatherTrigger 판단해 Worker 재예약까지 처리하므로 별도 호출 불필요.
         WeatherCheckWorker.cancelFor(getApplication(), alarm.id)
         if (alarm.isEnabled) {
             AlarmScheduler.schedule(getApplication(), alarm)
-            if (alarm.weatherTrigger) WeatherCheckWorker.scheduleFor(getApplication(), alarm)
         } else {
             AlarmScheduler.cancel(getApplication(), alarm.id)
         }
@@ -38,15 +38,12 @@ class AlarmViewModel(app: Application) : AndroidViewModel(app) {
 
     fun deleteAlarm(alarm: AlarmEntity) = viewModelScope.launch {
         dao.delete(alarm)
+        // AlarmScheduler.cancel 내부에서 WeatherCheckWorker.cancelFor 처리
         AlarmScheduler.cancel(getApplication(), alarm.id)
-        WeatherCheckWorker.cancelFor(getApplication(), alarm.id)
     }
 
     fun deleteAlarmsByIds(ids: Set<Int>) = viewModelScope.launch {
-        ids.forEach { id ->
-            AlarmScheduler.cancel(getApplication(), id)
-            WeatherCheckWorker.cancelFor(getApplication(), id)
-        }
+        ids.forEach { id -> AlarmScheduler.cancel(getApplication(), id) }
         dao.deleteByIds(ids.toList())
     }
 
@@ -54,11 +51,11 @@ class AlarmViewModel(app: Application) : AndroidViewModel(app) {
         val updated = alarm.copy(isEnabled = !alarm.isEnabled)
         dao.update(updated)
         if (updated.isEnabled) {
+            // AlarmScheduler.schedule 이 내부에서 weatherTrigger 기반 Worker 재예약 처리
             AlarmScheduler.schedule(getApplication(), updated)
-            if (updated.weatherTrigger) WeatherCheckWorker.scheduleFor(getApplication(), updated)
         } else {
+            // AlarmScheduler.cancel 이 내부에서 WeatherCheckWorker.cancelFor 처리
             AlarmScheduler.cancel(getApplication(), updated.id)
-            WeatherCheckWorker.cancelFor(getApplication(), updated.id)
         }
     }
 
