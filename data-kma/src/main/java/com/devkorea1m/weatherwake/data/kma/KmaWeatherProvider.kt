@@ -34,6 +34,10 @@ class KmaWeatherProvider(
     ): AppResult<WeatherSnapshot> {
         return try {
             val grid = KmaGridConverter.toGrid(lat, lon)
+                ?: return AppResult.Error(
+                    IllegalArgumentException("coords ($lat,$lon) outside KMA grid bounds"),
+                    "이 좌표는 기상청 격자 범위 밖입니다"
+                )
             val (baseDate, baseTime) = resolveBaseDateTime()
 
             val response = api.getUltraShortNowcast(
@@ -74,16 +78,37 @@ class KmaWeatherProvider(
             3, 7        -> WeatherConditionType.SNOW            // 눈, 눈날림
             else        -> WeatherConditionType.CLEAR
         }
-        // 비/눈 혼합(2) · 빗방울눈날림(6) 의 경우 강설량도 함께 셋
-        val snowSuspect = pty == 2 || pty == 3 || pty == 6 || pty == 7
+
+        // 혼합 강수(PTY 2/6) 는 mm/h 를 의도적으로 null 로 설정한다.
+        //   이유: RN1 은 액체 환산량이라 wet snow 에서 통근 영향 대비 작게
+        //   보고됨(예: 실제 함박눈 상황에서 0.2~0.5 mm/h). 그대로 rainMmh 에
+        //   넣으면 "보통(임계 1.0 mm/h)" 민감도 사용자에서 임계값 비교가
+        //   실패해 앞당김이 발동하지 않는 버그가 있었음.
+        //   null 로 두면 Worker 가 conditionType 코드만으로 fallback 판정을
+        //   수행(민감도 "보통" 포함 ≤ 2 에서 트리거). 임계 비교를 우회해
+        //   "기상청이 혼합 강수라고 단언하면 일단 깨운다"는 safety-first
+        //   철학과 일치.
+        //   순수 비(1/5) · 순수 눈(3/7) 은 기존대로 mm/h 보고 — 임계값 비교가
+        //   의미 있기 때문.
+        val isMixed = pty == 2 || pty == 6
+
+        val rainMmhOut = when {
+            condition != WeatherConditionType.RAIN -> null
+            isMixed                                -> null   // fallback 경로 유도
+            else                                   -> rn1
+        }
+        val snowMmhOut = when {
+            condition != WeatherConditionType.SNOW -> null
+            else                                   -> rn1
+        }
 
         return WeatherSnapshot(
             conditionType = condition,
             description   = kmaDescription(pty),
             tempCelsius   = t1h,
             cityName      = "",                                 // KMA는 도시명 제공 안 함
-            rainMmh       = if (condition == WeatherConditionType.RAIN) rn1 else null,
-            snowMmh       = if (snowSuspect) rn1 else null
+            rainMmh       = rainMmhOut,
+            snowMmh       = snowMmhOut
         )
     }
 
