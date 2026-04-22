@@ -304,10 +304,9 @@ class MainActivity : AppCompatActivity() {
                 b.tvWeatherCity.text   = "📍 ${latLon.label}"
                 b.tvWeatherStatus.text = getString(R.string.message_checking_weather)
 
-                when (val result = WeatherRepository().getCurrentWeather(
-                    lat    = latLon.lat,
-                    lon    = latLon.lon,
-                    apiKey = BuildConfig.OWM_API_KEY
+                when (val result = WeatherRepository(BuildConfig.OWM_API_KEY).getCurrentWeather(
+                    lat = latLon.lat,
+                    lon = latLon.lon
                 )) {
                     is AppResult.Success -> {
                         val weather = result.data

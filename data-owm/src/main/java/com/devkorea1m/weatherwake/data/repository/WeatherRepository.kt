@@ -1,39 +1,35 @@
 package com.devkorea1m.weatherwake.data.repository
 
-import com.devkorea1m.weatherwake.data.model.PrecipInfo
 import com.devkorea1m.weatherwake.data.model.WeatherConditionType
 import com.devkorea1m.weatherwake.data.model.WeatherResponse
 import com.devkorea1m.weatherwake.data.network.RetrofitClient
+import com.devkorea1m.weatherwake.domain.WeatherProvider
+import com.devkorea1m.weatherwake.domain.WeatherSnapshot
 import retrofit2.HttpException
 import java.io.IOException
 
-data class WeatherResult(
-    val conditionType: WeatherConditionType,
-    val description: String,
-    val tempCelsius: Double,
-    val cityName: String,
-    val rain: PrecipInfo? = null,
-    val snow: PrecipInfo? = null
-)
+/**
+ * OpenWeatherMap 기반 [WeatherProvider] 구현.
+ *
+ * API 키는 생성 시점에 주입받는다. 호출부는 [WeatherProvider] 인터페이스만
+ * 알면 되므로 이후 KMA/NWS 공급자 또는 교차검증 아그리게이터로 쉽게 교체 가능.
+ *
+ * @return AppResult.Success — 정상
+ *         AppResult.NetworkError — HTTP 오류 (4xx/5xx)
+ *         AppResult.Error — 네트워크 미연결, 타임아웃 등
+ */
+class WeatherRepository(
+    private val apiKey: String
+) : WeatherProvider {
 
-class WeatherRepository {
-
-    /**
-     * 현재 실시간 날씨 조회.
-     *
-     * @return AppResult.Success — 정상
-     *         AppResult.NetworkError — HTTP 오류 (4xx/5xx)
-     *         AppResult.Error — 네트워크 미연결, 타임아웃 등
-     */
-    suspend fun getCurrentWeather(
+    override suspend fun getCurrentWeather(
         lat: Double,
-        lon: Double,
-        apiKey: String
-    ): AppResult<WeatherResult> {
+        lon: Double
+    ): AppResult<WeatherSnapshot> {
         return try {
             val response = RetrofitClient.weatherApi
                 .getCurrentWeather(lat, lon, apiKey, "metric", "kr")
-            AppResult.Success(response.toResult())
+            AppResult.Success(response.toSnapshot())
         } catch (e: HttpException) {
             AppResult.NetworkError(e.code(), "날씨 서버 오류 (${e.code()})")
         } catch (e: IOException) {
@@ -43,16 +39,16 @@ class WeatherRepository {
         }
     }
 
-    private fun WeatherResponse.toResult(): WeatherResult {
+    private fun WeatherResponse.toSnapshot(): WeatherSnapshot {
         val cond = weather.firstOrNull()
         val type = WeatherConditionType.fromCode(cond?.id ?: 800)
-        return WeatherResult(
+        return WeatherSnapshot(
             conditionType = type,
             description   = buildDescription(type),
             tempCelsius   = main.temp,
             cityName      = cityName,
-            rain          = rain,
-            snow          = snow
+            rainMmh       = rain?.oneHour,
+            snowMmh       = snow?.oneHour
         )
     }
 

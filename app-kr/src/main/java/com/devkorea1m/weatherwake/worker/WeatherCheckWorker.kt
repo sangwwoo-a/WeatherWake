@@ -5,11 +5,11 @@ import androidx.work.*
 import com.devkorea1m.weatherwake.BuildConfig
 import com.devkorea1m.weatherwake.data.db.AppDatabase
 import com.devkorea1m.weatherwake.data.model.AlarmEntity
-import com.devkorea1m.weatherwake.data.model.PrecipInfo
 import com.devkorea1m.weatherwake.data.model.WeatherConditionType
 import com.devkorea1m.weatherwake.data.repository.AppResult
 import com.devkorea1m.weatherwake.data.repository.WeatherRepository
-import com.devkorea1m.weatherwake.data.repository.WeatherResult
+import com.devkorea1m.weatherwake.domain.WeatherProvider
+import com.devkorea1m.weatherwake.domain.WeatherSnapshot
 import com.devkorea1m.weatherwake.util.AlarmConstants
 import com.devkorea1m.weatherwake.util.AlarmScheduler
 import com.devkorea1m.weatherwake.util.DateTimeUtils
@@ -32,7 +32,7 @@ class WeatherCheckWorker(
     params: WorkerParameters
 ) : CoroutineWorker(context, params) {
 
-    private val repository = WeatherRepository()
+    private val provider: WeatherProvider = WeatherRepository(BuildConfig.OWM_API_KEY)
     private val db = AppDatabase.getInstance(context)
 
     override suspend fun doWork(): Result {
@@ -56,10 +56,10 @@ class WeatherCheckWorker(
         // 날씨 획득 — 디버그 빌드에서 weather.override 가 설정돼 있으면 그 값으로 시뮬레이션.
         // release 빌드는 BuildConfig.DEBUG=false 라서 이 분기가 절대 타지 않음 (이중 가드).
         val override = if (BuildConfig.DEBUG) BuildConfig.WEATHER_OVERRIDE else ""
-        val weather: WeatherResult = if (override.isNotBlank()) {
+        val weather: WeatherSnapshot = if (override.isNotBlank()) {
             simulatedWeather(override, latLon.label)
         } else {
-            when (val r = repository.getCurrentWeather(latLon.lat, latLon.lon, BuildConfig.OWM_API_KEY)) {
+            when (val r = provider.getCurrentWeather(latLon.lat, latLon.lon)) {
                 is AppResult.Success      -> r.data
                 is AppResult.NetworkError -> return Result.retry()
                 is AppResult.Error        -> return Result.retry()
@@ -68,9 +68,9 @@ class WeatherCheckWorker(
 
         val diffMin = DateTimeUtils.minutesUntilAlarm(alarm.hour, alarm.minute)
 
-        // 실측 강수량 (mm/h). API가 rain/snow 블록을 생략하는 경우가 있음 (이슬비 3xx 등)
-        val rainMmh = weather.rain?.oneHour
-        val snowMmh = weather.snow?.oneHour
+        // 실측 강수량 (mm/h). 제공자가 1h 필드를 생략하면 null (이슬비 3xx 등)
+        val rainMmh = weather.rainMmh
+        val snowMmh = weather.snowMmh
 
         when (weather.conditionType) {
             WeatherConditionType.RAIN -> {
@@ -111,30 +111,30 @@ class WeatherCheckWorker(
      * 디버그 전용 — 외부 API 호출 없이 가상의 날씨를 만들어 준다.
      * 사용자 민감도 임계값을 확실히 넘는 값으로 세팅해서 앞당김이 무조건 발동되도록 함.
      */
-    private fun simulatedWeather(kind: String, cityName: String): WeatherResult = when (kind.uppercase()) {
-        "RAIN"  -> WeatherResult(
+    private fun simulatedWeather(kind: String, cityName: String): WeatherSnapshot = when (kind.uppercase()) {
+        "RAIN"  -> WeatherSnapshot(
             conditionType = WeatherConditionType.RAIN,
             description   = "🧪 시뮬: 강우",
             tempCelsius   = 12.0,
             cityName      = cityName,
-            rain          = PrecipInfo(oneHour = 5.0f),   // "둔감" 임계값(3.0) 보다도 높게
-            snow          = null
+            rainMmh       = 5.0f,   // "둔감" 임계값(3.0) 보다도 높게
+            snowMmh       = null
         )
-        "SNOW"  -> WeatherResult(
+        "SNOW"  -> WeatherSnapshot(
             conditionType = WeatherConditionType.SNOW,
             description   = "🧪 시뮬: 강설",
             tempCelsius   = -2.0,
             cityName      = cityName,
-            rain          = null,
-            snow          = PrecipInfo(oneHour = 12.0f)   // "둔감" 임계값(10.0) 보다도 높게
+            rainMmh       = null,
+            snowMmh       = 12.0f   // "둔감" 임계값(10.0) 보다도 높게
         )
-        else    -> WeatherResult(
+        else    -> WeatherSnapshot(
             conditionType = WeatherConditionType.CLEAR,
             description   = "🧪 시뮬: 맑음",
             tempCelsius   = 18.0,
             cityName      = cityName,
-            rain          = null,
-            snow          = null
+            rainMmh       = null,
+            snowMmh       = null
         )
     }
 
