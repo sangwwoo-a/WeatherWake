@@ -56,4 +56,14 @@
         <item name="android:windowBackground">#000000</item>
         <item name="colorSurface">#000000</item>
     </style>
+
+    <!-- Splash 화면 – DevKorea1m 브랜드 마크 2초 표시용.
+         배경은 브랜드 스펙의 dark-anchor(#0A0A0B) 로 순수 블랙과 시각적 동일.
+         Android 12+ 시스템 스플래시가 아이콘을 0.5초 잠깐 깜빡여 띄우는데,
+         여기서도 같은 검정 배경을 깔아 전환이 매끄럽게 느껴지도록 한다. -->
+    <style name="Theme.WeatherWake.Splash" parent="Theme.WeatherWake">
+        <item name="android:colorBackground">#0A0A0B</item>
+        <item name="android:windowBackground">#0A0A0B</item>
+        <item name="colorSurface">#0A0A0B</item>
+    </style>
 </resources>
