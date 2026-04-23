@@ -11,7 +11,7 @@
     <string name="label_no_repeat">No repeat</string>
     <string name="label_alarm_name">Alarm Name</string>
     <string name="label_weather_linked_alarm">Weather-linked Alarm</string>
-    <string name="label_weather_linked_description">Auto-advance when rain/snow detected</string>
+    <string name="label_weather_linked_description">Auto-advance when rain/snow forecast detected 90 min before alarm</string>
     <string name="action_cancel">Cancel</string>
     <string name="action_weather_setup">Weather setup →</string>
     <string name="action_sound_setup">Sound setup →</string>

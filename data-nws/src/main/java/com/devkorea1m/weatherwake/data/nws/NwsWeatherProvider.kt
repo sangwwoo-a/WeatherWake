@@ -75,7 +75,12 @@ class NwsWeatherProvider(
 
         return WeatherSnapshot(
             conditionType = condition,
-            description   = textDescription.ifBlank { "—" },
+            // 일부 공항 관측소(KEWR Newark Liberty 등) 는 textDescription 이 결측으로
+            // 빈 문자열로 옴. 그대로 빈 값 유지해야 CrossValidatingWeatherProvider.merge
+            // 의 isNotBlank() 가드가 secondary(OWM) description 또는 neutral 문구로
+            // 폴백. 예전엔 "—" 로 치환했는데 그게 isNotBlank 통과해 UI 에 emdash 한
+            // 글자만 뜨는 결과 발생 (Newark 사용자 제보).
+            description   = textDescription,
             tempCelsius   = tempC,
             cityName      = city,
             rainMmh       = if (condition == WeatherConditionType.RAIN) rainMmh else null,
@@ -177,7 +182,8 @@ class NwsWeatherProvider(
 
         return WeatherSnapshot(
             conditionType = condition,
-            description   = shortForecast.ifBlank { "—" },
+            // shortForecast 가 비어있는 경우(드물지만 있음)엔 그대로 빈 문자열 → aggregator fallback
+            description   = shortForecast,
             tempCelsius   = tempC,
             cityName      = city,
             // mm/h 실측 없음 → null 로 두면 Worker fallback 이 보통 민감도에서 트리거

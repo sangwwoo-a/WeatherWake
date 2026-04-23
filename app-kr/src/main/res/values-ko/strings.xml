@@ -11,7 +11,7 @@
     <string name="label_no_repeat">반복 없음</string>
     <string name="label_alarm_name">알람 이름</string>
     <string name="label_weather_linked_alarm">날씨 연동 알람</string>
-    <string name="label_weather_linked_description">비·눈 감지 시 자동으로 앞당김</string>
+    <string name="label_weather_linked_description">알람 시각 90분 전 비·눈 예보 감지 시 자동으로 앞당김</string>
     <string name="action_cancel">취소</string>
     <string name="action_weather_setup">날씨 설정 →</string>
     <string name="action_sound_setup">알람음 설정 →</string>
