@@ -24,6 +24,12 @@ build/
 *.jks
 *.keystore
 
+# 서명된 AAB / APK 빌드 산출물 — Play Console 업로드 전용이라 repo에 보관 불필요.
+# Android Studio 의 Generate Signed Bundle 출력 디렉터리.
+*.aab
+app-kr/release/
+app/release/
+
 # API keys / secrets
 # (OWM_API_KEY는 build.gradle.kts에 포함되어 있으므로 주의)
 
