@@ -21,7 +21,7 @@ android {
         minSdk = 26
         targetSdk = 35
         versionCode = 22
-        versionName = "1.3.0"
+        versionName = "1.2.2"
 
         buildConfigField(
             "String", "OWM_API_KEY",
