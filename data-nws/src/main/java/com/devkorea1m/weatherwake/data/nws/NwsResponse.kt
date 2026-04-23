@@ -21,6 +21,7 @@ data class NwsPointsResponse(
 
 data class NwsPointsProps(
     @SerializedName("observationStations") val observationStationsUrl: String,
+    @SerializedName("forecastHourly")      val forecastHourlyUrl: String? = null,
     @SerializedName("relativeLocation")    val relativeLocation: NwsRelativeLocation? = null
 )
 
@@ -65,4 +66,29 @@ data class NwsObservationProps(
 data class NwsUnitValue(
     @SerializedName("value")    val value: Double? = null,
     @SerializedName("unitCode") val unitCode: String = ""
+)
+
+/**
+ * GET {forecastHourly} 응답 — 7일×1시간 간격 예보.
+ *
+ * 각 period 는 startTime/endTime (ISO-8601 + TZ offset), shortForecast
+ * ("Light Rain", "Partly Cloudy" 등), temperature(F/C),
+ * probabilityOfPrecipitation 을 제공. NWS forecastHourly 는
+ * precipitationAmount 필드가 일관적이지 않아 text 기반 분류를 주 신호로 사용.
+ */
+data class NwsForecastResponse(
+    @SerializedName("properties") val properties: NwsForecastProps
+)
+
+data class NwsForecastProps(
+    @SerializedName("periods") val periods: List<NwsForecastPeriod> = emptyList()
+)
+
+data class NwsForecastPeriod(
+    @SerializedName("startTime")                  val startTime: String,   // ISO-8601 w/ TZ
+    @SerializedName("endTime")                    val endTime: String,
+    @SerializedName("temperature")                val temperature: Double? = null,
+    @SerializedName("temperatureUnit")            val temperatureUnit: String = "F",
+    @SerializedName("probabilityOfPrecipitation") val probabilityOfPrecipitation: NwsUnitValue? = null,
+    @SerializedName("shortForecast")              val shortForecast: String = ""
 )

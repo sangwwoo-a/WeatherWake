@@ -32,4 +32,27 @@ interface KmaApiService {
         @Query("nx")         nx: Int,
         @Query("ny")         ny: Int
     ): KmaResponse
+
+    /**
+     * 초단기예보조회 — 호출 시점 + 6시간 범위, 1시간 간격.
+     *
+     * base_time 규칙: 매시각 30분 기준 (0030, 0130, ... 2330) 으로 발표되며
+     * 발표 15 분 후(HH:45) 부터 가용. 호출부는 [KmaWeatherProvider] 가
+     * 계산해 넘김.
+     *
+     * 응답 items 각각에 fcstDate/fcstTime/category/fcstValue 필드가 있어
+     * 카테고리(PTY/RN1/T1H/SKY 등) × 예보시각 매트릭스를 돌려준다.
+     * numOfRows 를 넉넉히 잡아 한 번에 전부 수신.
+     */
+    @GET("getUltraSrtFcst")
+    suspend fun getUltraShortForecast(
+        @Query("serviceKey") serviceKey: String,
+        @Query("pageNo")     pageNo: Int = 1,
+        @Query("numOfRows")  numOfRows: Int = 60,   // 6시간 × 10 카테고리 여유
+        @Query("dataType")   dataType: String = "JSON",
+        @Query("base_date")  baseDate: String,
+        @Query("base_time")  baseTime: String,
+        @Query("nx")         nx: Int,
+        @Query("ny")         ny: Int
+    ): KmaForecastResponse
 }

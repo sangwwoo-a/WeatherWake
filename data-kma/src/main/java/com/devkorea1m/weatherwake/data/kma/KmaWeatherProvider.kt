@@ -141,6 +141,139 @@ class KmaWeatherProvider(
         return DATE_FMT.format(cal.time) to TIME_FMT.format(cal.time)
     }
 
+    // ─── 초단기예보 (getUltraSrtFcst) 경로 ─────────────────────────────
+
+    override suspend fun getForecastAt(
+        lat: Double,
+        lon: Double,
+        targetEpochMs: Long
+    ): AppResult<WeatherSnapshot> {
+        return try {
+            val grid = KmaGridConverter.toGrid(lat, lon)
+                ?: return AppResult.Error(
+                    IllegalArgumentException("coords ($lat,$lon) outside KMA grid bounds"),
+                    "이 좌표는 기상청 격자 범위 밖입니다"
+                )
+            val (baseDate, baseTime) = resolveForecastBaseDateTime()
+
+            val response = api.getUltraShortForecast(
+                serviceKey = serviceKey,
+                baseDate   = baseDate,
+                baseTime   = baseTime,
+                nx         = grid.nx,
+                ny         = grid.ny
+            )
+
+            val header = response.response.header
+            if (header.resultCode != "00") {
+                return AppResult.NetworkError(
+                    code    = header.resultCode.toIntOrNull() ?: -1,
+                    message = "기상청 오류: ${header.resultMsg}"
+                )
+            }
+            val items = response.response.body?.items?.item.orEmpty()
+            AppResult.Success(items.toForecastSnapshot(targetEpochMs))
+        } catch (e: HttpException) {
+            AppResult.NetworkError(e.code(), "기상청 서버 오류 (${e.code()})")
+        } catch (e: IOException) {
+            AppResult.Error(e, "네트워크 연결을 확인해주세요")
+        } catch (e: Exception) {
+            AppResult.Error(e, "기상청 정보를 불러올 수 없어요")
+        }
+    }
+
+    /**
+     * 초단기예보 base_time 규칙:
+     *   HH:30 (0030, 0130, …, 2330) 에 발표, 발표 15분 후 (HH:45) 부터 가용.
+     *   → 현재 분이 45 이상이면 방금 HH:30, 44 이하면 이전 시각 HH:30 사용.
+     */
+    private fun resolveForecastBaseDateTime(
+        now: Calendar = Calendar.getInstance(KST)
+    ): Pair<String, String> {
+        val cal = (now.clone() as Calendar).apply {
+            if (get(Calendar.MINUTE) < 45) add(Calendar.HOUR_OF_DAY, -1)
+            set(Calendar.MINUTE, 30)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        return DATE_FMT.format(cal.time) to TIME_FMT.format(cal.time)
+    }
+
+    /**
+     * 응답 item 리스트에서 targetEpochMs 가 속한 1-시간 슬롯의 category×value 만
+     * 추려 WeatherSnapshot 으로 조립.
+     *
+     * 매칭: `item.fcstDate == targetDate && item.fcstTime == targetHour` (floor).
+     * 해당 시각이 응답 범위 밖이면 가장 가까운 마지막 시각으로 폴백.
+     */
+    private fun List<KmaForecastItem>.toForecastSnapshot(targetEpochMs: Long): WeatherSnapshot {
+        if (isEmpty()) {
+            return WeatherSnapshot(
+                conditionType = WeatherConditionType.CLEAR,
+                description   = "예보 없음",
+                tempCelsius   = 0.0,
+                cityName      = ""
+            )
+        }
+
+        // targetEpochMs → yyyyMMdd HHmm (KST, 시 단위 floor)
+        val targetCal = Calendar.getInstance(KST).apply {
+            timeInMillis = targetEpochMs
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        val targetDate = DATE_FMT.format(targetCal.time)
+        val targetTime = TIME_FMT.format(targetCal.time)
+
+        // 우선 정확 매칭, 실패 시 가장 가까운 fcst 시각으로 폴백
+        val matching = filter { it.fcstDate == targetDate && it.fcstTime == targetTime }
+            .ifEmpty {
+                // 응답 마지막 시각으로 폴백 (일반적으로 +6h 이후 예보 요청 시에만 타지만 방어)
+                val last = maxByOrNull { "${it.fcstDate}${it.fcstTime}".toLong() }
+                    ?: return WeatherSnapshot(
+                        conditionType = WeatherConditionType.CLEAR,
+                        description   = "예보 없음",
+                        tempCelsius   = 0.0,
+                        cityName      = ""
+                    )
+                filter { it.fcstDate == last.fcstDate && it.fcstTime == last.fcstTime }
+            }
+
+        val byCategory = matching.associateBy { it.category }
+        val pty = byCategory["PTY"]?.fcstValue?.toIntOrNull() ?: 0
+        val rn1 = byCategory["RN1"]?.fcstValue?.parseMmh()
+        val t1h = byCategory["T1H"]?.fcstValue?.toDoubleOrNull() ?: 0.0
+
+        val condition = when (pty) {
+            1, 5 -> WeatherConditionType.RAIN
+            2, 6 -> WeatherConditionType.RAIN   // 혼합 → 안전우선 RAIN
+            3, 7 -> WeatherConditionType.SNOW
+            else -> WeatherConditionType.CLEAR
+        }
+        val isMixed = pty == 2 || pty == 6
+
+        // 혼합(PTY 2/6)은 mm/h null 로 두어 Worker fallback 이 보통 민감도에서 트리거하게 함 (v1.2.1 정책과 동일)
+        val rainMmhOut = when {
+            condition != WeatherConditionType.RAIN -> null
+            isMixed                                -> null
+            else                                   -> rn1
+        }
+        val snowMmhOut = when {
+            condition != WeatherConditionType.SNOW -> null
+            else                                   -> rn1
+        }
+
+        return WeatherSnapshot(
+            conditionType = condition,
+            description   = kmaDescription(pty),
+            tempCelsius   = t1h,
+            cityName      = "",
+            rainMmh       = rainMmhOut,
+            snowMmh       = snowMmhOut
+        )
+    }
+
     private companion object {
         val KST: TimeZone = TimeZone.getTimeZone("Asia/Seoul")
         val DATE_FMT = SimpleDateFormat("yyyyMMdd", Locale.US).apply { timeZone = KST }

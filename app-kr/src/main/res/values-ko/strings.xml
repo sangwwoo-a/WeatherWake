@@ -102,10 +102,10 @@
     <!-- 알람 저장 전 안내 다이얼로그 본문. 지역별 변형이 아래 세 가지.
          기본(dialog_weather_notice_body) = KR 버전 — layout preview 및 fallback.
          AlarmSettingActivity 가 currentRegion() 기준으로 _kr / _us / _global 중 선택해 주입. -->
-    <string name="dialog_weather_notice_body">알람명 : \u200B%8$s\u200B\n알람 시각 : %2$s\n반복 : %7$s\n\n앱은 설정된 알람 시각 90분 전에 한국 기상청과 OpenWeatherMap에서 날씨를 각 1회 자동 조회하고 교차 검증합니다.</string>
-    <string name="dialog_weather_notice_body_kr">알람명 : \u200B%8$s\u200B\n알람 시각 : %2$s\n반복 : %7$s\n\n앱은 설정된 알람 시각 90분 전에 한국 기상청과 OpenWeatherMap에서 날씨를 각 1회 자동 조회하고 교차 검증합니다.</string>
-    <string name="dialog_weather_notice_body_us">알람명 : \u200B%8$s\u200B\n알람 시각 : %2$s\n반복 : %7$s\n\n앱은 설정된 알람 시각 90분 전에 미국 NWS(국립기상청)와 OpenWeatherMap에서 날씨를 각 1회 자동 조회하고 교차 검증합니다.</string>
-    <string name="dialog_weather_notice_body_global">알람명 : \u200B%8$s\u200B\n알람 시각 : %2$s\n반복 : %7$s\n\n앱은 설정된 알람 시각 90분 전에 OpenWeatherMap에서 날씨를 1회 자동 조회합니다.</string>
+    <string name="dialog_weather_notice_body">알람명 : \u200B%8$s\u200B\n알람 시각 : %2$s\n반복 : %7$s\n\n앱은 설정된 알람 시각 90분 전에 한국 기상청과 OpenWeatherMap에서 알람 시각의 단기 예보를 각 1회 조회하고 교차 검증합니다.</string>
+    <string name="dialog_weather_notice_body_kr">알람명 : \u200B%8$s\u200B\n알람 시각 : %2$s\n반복 : %7$s\n\n앱은 설정된 알람 시각 90분 전에 한국 기상청과 OpenWeatherMap에서 알람 시각의 단기 예보를 각 1회 조회하고 교차 검증합니다.</string>
+    <string name="dialog_weather_notice_body_us">알람명 : \u200B%8$s\u200B\n알람 시각 : %2$s\n반복 : %7$s\n\n앱은 설정된 알람 시각 90분 전에 미국 NWS(국립기상청)와 OpenWeatherMap에서 알람 시각의 단기 예보를 각 1회 조회하고 교차 검증합니다.</string>
+    <string name="dialog_weather_notice_body_global">알람명 : \u200B%8$s\u200B\n알람 시각 : %2$s\n반복 : %7$s\n\n앱은 설정된 알람 시각 90분 전에 OpenWeatherMap에서 알람 시각의 단기 예보를 1회 조회합니다.</string>
     <string name="dialog_weather_notice_detail_title">앞당김 동작 상세</string>
     <string name="dialog_weather_notice_detail_body">조회 결과에 따라:\n예시) 알람명 : \'\u200B%8$s\u200B\'의 경우\n\n  • 비 감지    → %3$s에 울림  (%5$d분 일찍)\n  • 눈 감지    → %4$s에 울림  (%6$d분 일찍)\n  • 맑음·흐림  → %2$s에 울림  (정상)\n\n%1$s과 %2$s 사이의 날씨 변화는 반영되지 않습니다.</string>
     <string name="dialog_weather_notice_learn_more">자세히 알아보기</string>
@@ -169,10 +169,10 @@
     <string name="snow_desc_low">🌨💨 발목 이상 쌓이고 교통이 느려지는 폭설</string>
     <!-- 날씨 설정 2/3단계(비 / 눈) 하단 공급자 안내. 지역별 변형 아래.
          기본(label_owm_weather_info) = KR — layout preview 용. 실제 렌더는 WeatherRain/SnowActivity 가 교체. -->
-    <string name="label_owm_weather_info">ℹ️ 날씨는 매일 알람 시각 90분 전 기준으로\n기상청 국가기후데이터센터와 OpenWeatherMap의\n실시간 기상 정보를 교차 검증하여 반영합니다.\n\n체크 시점 이후의 날씨 변화는 반영되지 않으므로\n실제 알람 시각의 날씨와는 다를 수 있습니다.</string>
-    <string name="label_weather_info_kr">ℹ️ 날씨는 매일 알람 시각 90분 전 기준으로\n기상청 국가기후데이터센터와 OpenWeatherMap의\n실시간 기상 정보를 교차 검증하여 반영합니다.\n\n체크 시점 이후의 날씨 변화는 반영되지 않으므로\n실제 알람 시각의 날씨와는 다를 수 있습니다.</string>
-    <string name="label_weather_info_us">ℹ️ 날씨는 매일 알람 시각 90분 전 기준으로\n미국 NWS(국립기상청)와 OpenWeatherMap의\n실시간 기상 정보를 교차 검증하여 반영합니다.\n\n체크 시점 이후의 날씨 변화는 반영되지 않으므로\n실제 알람 시각의 날씨와는 다를 수 있습니다.</string>
-    <string name="label_weather_info_global">ℹ️ 날씨는 매일 알람 시각 90분 전 기준으로\nOpenWeatherMap의 실시간 기상 정보를\n반영합니다.\n\n체크 시점 이후의 날씨 변화는 반영되지 않으므로\n실제 알람 시각의 날씨와는 다를 수 있습니다.</string>
+    <string name="label_owm_weather_info">ℹ️ 매일 알람 시각 90분 전에\n기상청 국가기후데이터센터와 OpenWeatherMap의\n알람 시각 단기 예보를 교차 검증하여 반영합니다.\n\n예보와 실제 기상이 다를 수 있어 실제 알람 시각의\n날씨와 차이가 생길 수 있습니다.</string>
+    <string name="label_weather_info_kr">ℹ️ 매일 알람 시각 90분 전에\n기상청 국가기후데이터센터와 OpenWeatherMap의\n알람 시각 단기 예보를 교차 검증하여 반영합니다.\n\n예보와 실제 기상이 다를 수 있어 실제 알람 시각의\n날씨와 차이가 생길 수 있습니다.</string>
+    <string name="label_weather_info_us">ℹ️ 매일 알람 시각 90분 전에\n미국 NWS(국립기상청)와 OpenWeatherMap의\n알람 시각 단기 예보를 교차 검증하여 반영합니다.\n\n예보와 실제 기상이 다를 수 있어 실제 알람 시각의\n날씨와 차이가 생길 수 있습니다.</string>
+    <string name="label_weather_info_global">ℹ️ 매일 알람 시각 90분 전에\nOpenWeatherMap의 알람 시각 단기 예보를\n반영합니다.\n\n예보와 실제 기상이 다를 수 있어 실제 알람 시각의\n날씨와 차이가 생길 수 있습니다.</string>
     <string name="action_back">이전</string>
     <string name="action_snow_setup">눈 설정 →</string>
     <string name="action_done">선택 완료</string>

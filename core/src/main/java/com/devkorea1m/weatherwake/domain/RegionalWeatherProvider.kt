@@ -31,12 +31,18 @@ class RegionalWeatherProvider(
     override suspend fun getCurrentWeather(
         lat: Double,
         lon: Double
-    ): AppResult<WeatherSnapshot> {
-        val regional: WeatherProvider = when (Region.fromCoordinates(lat, lon)) {
+    ): AppResult<WeatherSnapshot> = providerFor(lat, lon).getCurrentWeather(lat, lon)
+
+    override suspend fun getForecastAt(
+        lat: Double,
+        lon: Double,
+        targetEpochMs: Long
+    ): AppResult<WeatherSnapshot> = providerFor(lat, lon).getForecastAt(lat, lon, targetEpochMs)
+
+    private fun providerFor(lat: Double, lon: Double): WeatherProvider =
+        when (Region.fromCoordinates(lat, lon)) {
             Region.KR    -> CrossValidatingWeatherProvider(kmaProvider, owmProvider)
             Region.US    -> CrossValidatingWeatherProvider(nwsProvider, owmProvider)
             Region.OTHER -> owmProvider
         }
-        return regional.getCurrentWeather(lat, lon)
-    }
 }

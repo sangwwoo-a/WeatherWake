@@ -25,7 +25,21 @@ data class MainInfo(
     @SerializedName("humidity")   val humidity: Int
 )
 
-/** 강수/적설량 정보 (OWM API: rain.1h / snow.1h, 단위 mm/h) */
+/**
+ * 강수/적설량 정보.
+ *  - Current Weather API (/weather) 는 `"1h"` 필드 (지난 1시간, mm)
+ *  - 5-day/3-hour Forecast API (/forecast) 는 `"3h"` 필드 (해당 3시간 슬롯, mm)
+ *
+ * [mmh] 편의 접근자로 호출부가 엔드포인트 종류 신경 안 쓰고 mm/h 로 환산된 값 사용.
+ */
 data class PrecipInfo(
-    @SerializedName("1h") val oneHour: Float = 0f   // 지난 1시간 강수량 (mm/h)
-)
+    @SerializedName("1h") val oneHour: Float = 0f,
+    @SerializedName("3h") val threeHour: Float = 0f
+) {
+    /** "1h" 가 있으면 그대로, 없으면 "3h"/3 로 mm/h 환산. 둘 다 0 이면 null */
+    fun mmh(): Float? = when {
+        oneHour > 0f   -> oneHour
+        threeHour > 0f -> threeHour / 3f
+        else           -> null
+    }
+}

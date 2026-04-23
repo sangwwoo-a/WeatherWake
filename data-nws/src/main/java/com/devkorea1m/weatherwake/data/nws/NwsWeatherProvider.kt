@@ -6,6 +6,8 @@ import com.devkorea1m.weatherwake.domain.WeatherProvider
 import com.devkorea1m.weatherwake.domain.WeatherSnapshot
 import retrofit2.HttpException
 import java.io.IOException
+import java.time.OffsetDateTime
+import java.time.format.DateTimeParseException
 
 /**
  * NWS (미국 기상청) 기반 [WeatherProvider].
@@ -85,5 +87,102 @@ class NwsWeatherProvider(
     private fun NwsUnitValue.mmh(): Float? {
         val v = value ?: return null
         return v.toFloat().takeIf { it > 0f }
+    }
+
+    // ─── 예보(forecastHourly) 경로 ─────────────────────────────────────
+
+    override suspend fun getForecastAt(
+        lat: Double,
+        lon: Double,
+        targetEpochMs: Long
+    ): AppResult<WeatherSnapshot> {
+        return try {
+            val point = api.getPoint("%.4f,%.4f".format(lat, lon))
+            val cityLabel = point.properties.relativeLocation?.properties?.let {
+                if (it.city.isNotBlank()) "${it.city}, ${it.state}" else ""
+            } ?: ""
+            val forecastUrl = point.properties.forecastHourlyUrl
+                ?: return AppResult.Error(
+                    IllegalStateException("no forecastHourly URL"),
+                    "해당 지역의 예보 URL을 받지 못했어요"
+                )
+
+            val forecast = api.getForecastHourly(forecastUrl)
+            val period = pickPeriod(forecast.properties.periods, targetEpochMs)
+                ?: return AppResult.Error(
+                    IllegalStateException("no matching forecast period"),
+                    "예보 슬롯을 찾지 못했어요"
+                )
+            AppResult.Success(period.toSnapshot(cityLabel))
+        } catch (e: HttpException) {
+            AppResult.NetworkError(e.code(), "NWS 서버 오류 (${e.code()})")
+        } catch (e: IOException) {
+            AppResult.Error(e, "네트워크 연결을 확인해주세요")
+        } catch (e: Exception) {
+            AppResult.Error(e, "NWS 예보를 불러올 수 없어요")
+        }
+    }
+
+    /**
+     * periods 에서 targetEpochMs 가 속한 1시간 슬롯을 찾는다.
+     * 정확 매칭 실패 시 가장 가까운 period 로 폴백.
+     */
+    private fun pickPeriod(
+        periods: List<NwsForecastPeriod>,
+        targetEpochMs: Long
+    ): NwsForecastPeriod? {
+        if (periods.isEmpty()) return null
+
+        fun parseMs(iso: String): Long? = try {
+            OffsetDateTime.parse(iso).toInstant().toEpochMilli()
+        } catch (_: DateTimeParseException) { null } catch (_: Exception) { null }
+
+        // 정확: startMs ≤ target < endMs
+        periods.forEach { p ->
+            val startMs = parseMs(p.startTime) ?: return@forEach
+            val endMs   = parseMs(p.endTime)   ?: return@forEach
+            if (targetEpochMs in startMs until endMs) return p
+        }
+        // 폴백: target 과 start 거리 최소
+        return periods.minByOrNull {
+            parseMs(it.startTime)?.let { ms -> kotlin.math.abs(ms - targetEpochMs) } ?: Long.MAX_VALUE
+        }
+    }
+
+    private fun NwsForecastPeriod.toSnapshot(city: String): WeatherSnapshot {
+        val text = shortForecast.lowercase()
+        val hasSnow = text.contains("snow") || text.contains("flurr") || text.contains("sleet")
+        val hasRain = text.contains("rain") || text.contains("shower") || text.contains("drizzle") ||
+                       text.contains("thunder")
+        val pop = probabilityOfPrecipitation?.value ?: 0.0   // 0~100 %
+
+        // NWS 예보에 mm/h 실측은 없음. shortForecast + PoP 로 판정.
+        // 보수 기조: hasSnow 가 text 에 있으면 SNOW, hasRain 이면 RAIN, 둘 다 없고
+        // PoP >= 50% 면 text 상 "partly cloudy, slight chance" 같은 경계 케이스로
+        // 간주해 RAIN (안전우선).
+        val condition = when {
+            hasSnow                -> WeatherConditionType.SNOW
+            hasRain                -> WeatherConditionType.RAIN
+            pop >= 50.0            -> WeatherConditionType.RAIN
+            else                   -> WeatherConditionType.CLEAR
+        }
+
+        // NWS forecastHourly temperature 는 unit 필드로 F/C 구분
+        val tempC = temperature?.let { t ->
+            if (temperatureUnit.equals("F", ignoreCase = true))
+                (t - 32.0) * 5.0 / 9.0
+            else
+                t
+        } ?: 0.0
+
+        return WeatherSnapshot(
+            conditionType = condition,
+            description   = shortForecast.ifBlank { "—" },
+            tempCelsius   = tempC,
+            cityName      = city,
+            // mm/h 실측 없음 → null 로 두면 Worker fallback 이 보통 민감도에서 트리거
+            rainMmh       = null,
+            snowMmh       = null
+        )
     }
 }
