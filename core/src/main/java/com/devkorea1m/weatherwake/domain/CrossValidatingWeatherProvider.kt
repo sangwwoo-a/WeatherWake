@@ -64,9 +64,30 @@ class CrossValidatingWeatherProvider(
     override suspend fun getCurrentWeather(
         lat: Double,
         lon: Double
+    ): AppResult<WeatherSnapshot> = fetchAndMerge(
+        fetchPrimary   = { primary.getCurrentWeather(lat, lon) },
+        fetchSecondary = { secondary.getCurrentWeather(lat, lon) }
+    )
+
+    override suspend fun getForecastAt(
+        lat: Double,
+        lon: Double,
+        targetEpochMs: Long
+    ): AppResult<WeatherSnapshot> = fetchAndMerge(
+        fetchPrimary   = { primary.getForecastAt(lat, lon, targetEpochMs) },
+        fetchSecondary = { secondary.getForecastAt(lat, lon, targetEpochMs) }
+    )
+
+    /**
+     * 두 suspend 호출을 병렬 실행 → 결과 머지.
+     * getCurrentWeather / getForecastAt 공통 로직 추출.
+     */
+    private suspend fun fetchAndMerge(
+        fetchPrimary: suspend () -> AppResult<WeatherSnapshot>,
+        fetchSecondary: suspend () -> AppResult<WeatherSnapshot>
     ): AppResult<WeatherSnapshot> = coroutineScope {
-        val a = async { primary.getCurrentWeather(lat, lon) }
-        val b = async { secondary.getCurrentWeather(lat, lon) }
+        val a = async { fetchPrimary() }
+        val b = async { fetchSecondary() }
         val rp = a.await()
         val rs = b.await()
 

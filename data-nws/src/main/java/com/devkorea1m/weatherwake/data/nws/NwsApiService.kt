@@ -27,4 +27,8 @@ interface NwsApiService {
 
     @GET("stations/{id}/observations/latest")
     suspend fun getLatestObservation(@Path("id") stationId: String): NwsObservationResponse
+
+    /** /points 응답의 forecastHourly URL (절대경로) 호출 */
+    @GET
+    suspend fun getForecastHourly(@Url url: String): NwsForecastResponse
 }

@@ -87,10 +87,12 @@ class WeatherCheckWorker(
         val weather: WeatherSnapshot = if (override.isNotBlank()) {
             simulatedWeather(override, latLon.label)
         } else {
-            Log.i(TAG, "  → calling provider.getCurrentWeather (real API)")
-            when (val r = provider.getCurrentWeather(latLon.lat, latLon.lon)) {
+            // v1.3 부터: 실황 대신 "알람 시각(alarmMs) 의 단기 예보" 조회.
+            // 90 분 후 사용자가 실제로 깨어나는 시점의 예보를 기준으로 앞당김 판단.
+            Log.i(TAG, "  → calling provider.getForecastAt(alarmMs=$alarmMs)")
+            when (val r = provider.getForecastAt(latLon.lat, latLon.lon, alarmMs)) {
                 is AppResult.Success      -> {
-                    Log.i(TAG, "  provider SUCCESS: type=${r.data.conditionType} " +
+                    Log.i(TAG, "  forecast SUCCESS: type=${r.data.conditionType} " +
                             "desc='${r.data.description}' rainMmh=${r.data.rainMmh} snowMmh=${r.data.snowMmh}")
                     r.data
                 }
