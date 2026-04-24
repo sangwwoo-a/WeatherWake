@@ -100,6 +100,12 @@
     <string name="message_full_screen_permission_body">To display the alarm screen full-screen when the screen is off,\nwe need permission.\n\nWhen the settings screen opens, find \'WeatherWake\'\nand allow \'Display full screen\'.</string>
     <string name="message_exact_alarm_permission_title">Alarm Permission Required</string>
     <string name="message_exact_alarm_permission_body">To ring the alarm at the exact time, the \'Schedule Alarms and Reminders\' permission is required.\nPlease allow it in Settings.</string>
+
+    <!-- Notification permission pre-prompt (Android 13+). Shown before the system dialog to build trust and clarify we don\'t send ad/marketing pushes. -->
+    <string name="message_notif_rationale_title">🔔 About Notification Permission</string>
+    <string name="message_notif_rationale_body">WeatherWake uses notifications only for:\n\n• Ringing your alarms (lock-screen display)\n• A system notification showing an alarm is ringing\n• Explaining weather-based alarm advance\n\nWeatherWake will never send advertising, marketing, or promotional notifications.\n\nIf you decline, alarms will still ring, but notification-center display and some related features may be limited.</string>
+    <string name="action_notif_rationale_proceed">Continue &amp; request permission</string>
+    <string name="action_notif_rationale_later">Later</string>
     <string name="dialog_weather_notice_title">━ Settings for this alarm ━</string>
     <string name="dialog_weather_notice_body">Name : \u200B%8$s\u200B\nAlarm time : %2$s\nRepeat : %7$s\n\n90 minutes before the alarm time, the app fetches the short-term forecast *for the alarm time* from the Korea Meteorological Administration and OpenWeatherMap and cross-validates the results.</string>
     <string name="dialog_weather_notice_body_kr">Name : \u200B%8$s\u200B\nAlarm time : %2$s\nRepeat : %7$s\n\n90 minutes before the alarm time, the app fetches the short-term forecast *for the alarm time* from the Korea Meteorological Administration and OpenWeatherMap and cross-validates the results.</string>

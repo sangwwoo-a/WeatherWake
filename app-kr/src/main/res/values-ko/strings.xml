@@ -104,6 +104,17 @@
     <string name="message_full_screen_permission_body">화면이 꺼진 상태에서 알람이 울릴 때 전체화면으로\n알람 끄기 화면을 표시하려면 권한이 필요합니다.\n\n설정 화면이 열리면 \'WeatherWake\'를 찾아\n\'전체 화면으로 표시\'를 허용해 주세요.</string>
     <string name="message_exact_alarm_permission_title">알람 권한 필요</string>
     <string name="message_exact_alarm_permission_body">정확한 시간에 알람을 울리려면 \'알람 및 리마인더\' 권한이 필요합니다.\n설정에서 허용해 주세요.</string>
+
+    <!--
+      알림 권한 사전 안내 다이얼로그 (Android 13+).
+      시스템 권한 다이얼로그를 띄우기 전에 용도를 먼저 설명해 사용자가
+      "왜 이 앱이 알림을 요청하지?" 라는 경계심으로 무조건 거부하는 패턴
+      을 완화한다. 핵심은 "광고·마케팅에 안 쓴다" 는 명시적 약속.
+    -->
+    <string name="message_notif_rationale_title">🔔 알림 권한 안내</string>
+    <string name="message_notif_rationale_body">WeatherWake는 다음 용도로만 알림을 사용합니다.\n\n• 알람 울림 (잠금화면 표시)\n• 알람이 울리는 중임을 알려주는 시스템 알림\n• 날씨 앞당김 동작 안내\n\nWeatherWake는 광고·마케팅·프로모션 목적의 알림을 절대 보내지 않습니다.\n\n권한을 거부하셔도 알람 자체는 울리지만, 알림 센터 표시 등 일부 기능이 제한될 수 있어요.</string>
+    <string name="action_notif_rationale_proceed">확인하고 권한 요청</string>
+    <string name="action_notif_rationale_later">나중에</string>
     <string name="dialog_weather_notice_title">이 알람에 설정된 내용</string>
     <!-- 알람 저장 전 안내 다이얼로그 본문. 지역별 변형이 아래 세 가지.
          기본(dialog_weather_notice_body) = KR 버전 — layout preview 및 fallback.

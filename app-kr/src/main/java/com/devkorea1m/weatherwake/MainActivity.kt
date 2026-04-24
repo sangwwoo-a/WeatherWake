@@ -301,13 +301,47 @@ class MainActivity : AppCompatActivity() {
 
     private fun checkNotificationPermission() {
         // 2단계: POST_NOTIFICATIONS (Android 13+)
+        //
+        // 시스템 권한 다이얼로그를 바로 띄우지 않고 우리 앱 다이얼로그로 **용도와
+        // 광고 비사용 약속** 을 먼저 설명 → 사용자가 시스템 다이얼로그에서
+        // 신뢰 기반으로 허용 결정을 내릴 수 있도록 한다. 요즘 앱들의 광고성 푸시
+        // 남용 때문에 맥락 없이 시스템 다이얼로그가 뜨면 거부부터 누르는 경향이
+        // 강하다는 테스터 피드백 반영.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
                 != PackageManager.PERMISSION_GRANTED) {
-            notifPermLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            showNotificationRationaleThenRequest()
         } else {
             checkExactAlarmPermission()
         }
+    }
+
+    /**
+     * 알림 권한 사전 안내 다이얼로그 → 확인 시 시스템 권한 다이얼로그.
+     *
+     * "나중에" 를 누르거나 다이얼로그를 닫으면 권한 요청을 건너뛰고 다음 단계로
+     * 진행한다. 현재 버전에선 재촉하지 않는다 — 강요하지 않는 것 자체가 신뢰
+     * 메시지. 사용자가 필요성을 느끼면 설정에서 직접 켤 수 있다.
+     */
+    private fun showNotificationRationaleThenRequest() {
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.message_notif_rationale_title))
+            .setMessage(getString(R.string.message_notif_rationale_body))
+            .setCancelable(false)   // 외부 탭으로 닫히지 않음 — 사용자가 명시적 선택
+            .setPositiveButton(getString(R.string.action_notif_rationale_proceed)) { _, _ ->
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    notifPermLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                } else {
+                    // TIRAMISU 미만에선 권한 요청 불필요. 정상 경로상 도달하지 않지만 방어.
+                    checkExactAlarmPermission()
+                }
+            }
+            .setNegativeButton(getString(R.string.action_notif_rationale_later)) { _, _ ->
+                // 권한 요청 건너뛰고 다음 단계로 — 알람 자체는 이미 다른 채널로
+                // 작동하므로 앱은 문제없이 계속 사용 가능.
+                checkExactAlarmPermission()
+            }
+            .show()
     }
 
     private fun checkExactAlarmPermission() {
