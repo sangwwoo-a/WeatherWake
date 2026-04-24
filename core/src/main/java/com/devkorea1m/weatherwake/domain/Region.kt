@@ -42,11 +42,29 @@ enum class Region {
             // 37°~37.7° 로 제한해 큐슈(북위 33°대) 와 완전히 분리.
             lat in 37.0..37.7 && lon in 130.5..132.0 -> KR
 
-            // 미국 본토 (48 states): 24°~50°N, 66°~125°W
-            lat in 24.0..50.0 && lon in -125.0..-66.0 -> US
+            // 미국 본토. 북쪽 경계 49°N 은 캐나다(BC·앨버타·서스캐처원·
+            // 매니토바·온타리오 서부) 국경과 일치해 Vancouver(49.28°N)·
+            // Calgary(51°N) 등 서부 캐나다 도시 제외. 남쪽 경계 25°N 로
+            // Monterrey(25.67°N) 같은 멕시코 북부 도시 제외.
+            //
+            // 한계(수용 가능한 cosmetic 버그): Toronto(43.65°N)·Montreal
+            // (45.5°N)·Tijuana(32.5°N) 등은 박스 안에 남음. bbox 만으로는
+            // 5대호 주변 미·캐 경계와 미·멕 경계를 깨끗하게 분리 불가.
+            // NWS 가 해당 좌표에 404 로 응답 → CrossValidatingWeatherProvider
+            // 가 OWM 단독으로 폴백 → 데이터는 정상 표시됨. 다만 attribution
+            // 텍스트가 잠시 "NWS + OpenWeatherMap" 로 보이는 cosmetic 문제
+            // 남음. 완전한 해결은 v2 reverse-geocode 로.
+            lat in 25.0..49.0 && lon in -125.0..-66.0 -> US
 
-            // 알래스카: 54°~72°N, 130°~169°W
-            lat in 54.0..72.0 && lon in -169.0..-130.0 -> US
+            // 알래스카 본토: 54°~72°N, 141°~169°W. 동쪽 경계 141°W 는
+            // AK/YT(Yukon) 국경선. Whitehorse(60.72°N, 135°W) 같은 Yukon
+            // 도시가 이전 -130°W 경계에선 알래스카로 오판정됐음.
+            lat in 54.0..72.0 && lon in -169.0..-141.0 -> US
+
+            // 알래스카 판핸들 (Juneau 58.3°N, Sitka 57°N, Ketchikan 55.3°N):
+            // 54°~60°N, 130°~141°W. 위도 60° 컷으로 Whitehorse(60.72°N) 등
+            // Yukon 남부 도시와 분리.
+            lat in 54.0..60.0 && lon in -141.0..-130.0 -> US
 
             // 하와이: 18°~23°N, 154°~161°W
             lat in 18.0..23.0 && lon in -161.0..-154.0 -> US

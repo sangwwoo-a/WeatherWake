@@ -42,6 +42,17 @@ class NwsWeatherProvider(
                 ?: return AppResult.Error(IllegalStateException("no station"), "주변 관측소를 찾지 못했어요")
 
             val obs = api.getLatestObservation(stationId).properties
+
+            // Defense-in-depth: 온도 측정값이 아예 없으면(관측소 오프라인·
+            // 센서 결측) 0.0°C 로 폴백해서 표시하는 대신 Error 로 전환해
+            // CrossValidatingWeatherProvider 가 OWM 으로 폴백하게 한다.
+            // KMA 의 -999 sentinel 가드(v1.2.4) 와 대칭.
+            if (obs.temperature?.value == null) {
+                return AppResult.Error(
+                    IllegalStateException("NWS observation has no temperature at ($lat,$lon)"),
+                    "NWS 관측 데이터 결측"
+                )
+            }
             AppResult.Success(obs.toSnapshot(cityLabel))
         } catch (e: HttpException) {
             AppResult.NetworkError(e.code(), "NWS 서버 오류 (${e.code()})")
@@ -118,6 +129,16 @@ class NwsWeatherProvider(
                     IllegalStateException("no matching forecast period"),
                     "예보 슬롯을 찾지 못했어요"
                 )
+
+            // Defense-in-depth: period.temperature 가 null 이면 0.0°C 폴백
+            // 대신 Error 로 전환해 aggregator 가 OWM 폴백하게 함. KMA -999
+            // sentinel 가드와 대칭.
+            if (period.temperature == null) {
+                return AppResult.Error(
+                    IllegalStateException("NWS forecast period has no temperature at ($lat,$lon)"),
+                    "NWS 예보 데이터 결측"
+                )
+            }
             AppResult.Success(period.toSnapshot(cityLabel))
         } catch (e: HttpException) {
             AppResult.NetworkError(e.code(), "NWS 서버 오류 (${e.code()})")
