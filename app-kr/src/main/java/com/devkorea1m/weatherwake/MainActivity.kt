@@ -160,6 +160,24 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // ─── 툴바 오버플로 메뉴 (개인정보처리방침 / 이용약관) ────
+    // Play Console 정책상 법적 문서는 앱 내에서 접근 가능해야 함.
+    // 메인 화면이 이미 빡빡해서 3점 메뉴로만 노출.
+    override fun onCreateOptionsMenu(menu: android.view.Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_main, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: android.view.MenuItem): Boolean = when (item.itemId) {
+        R.id.menu_privacy_policy -> {
+            openUrl(getString(R.string.url_privacy_policy)); true
+        }
+        R.id.menu_terms_of_service -> {
+            openUrl(getString(R.string.url_terms_of_service)); true
+        }
+        else -> super.onOptionsItemSelected(item)
+    }
+
     // ─── 선택 모드 UI 업데이트 ───────────────────────────
     private fun updateSelectionBar(isActive: Boolean, count: Int) {
         if (isActive) {

@@ -133,6 +133,12 @@
     <string name="action_refresh_weather">Refresh weather</string>
     <string name="label_location_checking">Checking location…</string>
 
+    <!-- Toolbar overflow menu (Play Console legal links) -->
+    <string name="menu_privacy_policy">Privacy Policy</string>
+    <string name="menu_terms_of_service">Terms of Service</string>
+    <string name="url_privacy_policy" translatable="false">https://devkorea1m.com/weatherwake/privacy-policy.html</string>
+    <string name="url_terms_of_service" translatable="false">https://devkorea1m.com/weatherwake/terms-of-service.html</string>
+
     <!-- Weather Rain/Snow Activity -->
     <string name="toolbar_title_weather">Weather Settings</string>
     <string name="toolbar_subtitle_rain">Step 2 · ☔ When raining</string>
