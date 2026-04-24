@@ -33,6 +33,8 @@ import com.devkorea1m.weatherwake.data.repository.AppResult
 import com.devkorea1m.weatherwake.domain.Region
 import com.devkorea1m.weatherwake.domain.WeatherSource
 import com.devkorea1m.weatherwake.databinding.ActivityMainBinding
+import com.devkorea1m.weatherwake.BuildConfig
+import com.devkorea1m.weatherwake.util.LatLon
 import com.devkorea1m.weatherwake.util.LocationHelper
 import com.devkorea1m.weatherwake.viewmodel.AlarmViewModel
 import kotlinx.coroutines.launch
@@ -171,6 +173,12 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
+    override fun onPrepareOptionsMenu(menu: android.view.Menu): Boolean {
+        // 디버그 좌표 주입 아이템은 debug 빌드에서만 노출
+        menu.findItem(R.id.menu_debug_inject_coords)?.isVisible = BuildConfig.DEBUG
+        return super.onPrepareOptionsMenu(menu)
+    }
+
     override fun onOptionsItemSelected(item: android.view.MenuItem): Boolean = when (item.itemId) {
         R.id.menu_privacy_policy -> {
             openUrl(getString(R.string.url_privacy_policy)); true
@@ -178,7 +186,64 @@ class MainActivity : AppCompatActivity() {
         R.id.menu_terms_of_service -> {
             openUrl(getString(R.string.url_terms_of_service)); true
         }
+        R.id.menu_debug_inject_coords -> {
+            showDebugCoordInjector(); true
+        }
         else -> super.onOptionsItemSelected(item)
+    }
+
+    // ─── 디버그 전용: 테스트 좌표 주입 ─────────────────────────
+    // Region 바운딩 박스 / 공급자 라우팅 / sentinel 가드 동작을 실기기에서
+    // 확인하기 위한 도구. GPS 실제 이동 없이 특정 국가 좌표를 시뮬레이션.
+    //
+    // 동작:
+    //  1) GPS 자동 감지를 꺼 저장 좌표만 사용하도록 스위치
+    //  2) 선택한 도시 좌표를 SharedPreferences 에 저장
+    //  3) 사용자가 "날씨 새로고침" 버튼을 눌러 UI 갱신 확인
+    //
+    // 리스트 구성: PR #25 에서 다룬 회귀 케이스 — KR 경계(큐슈)·US 경계
+    // (캐나다·멕시코)·정상 케이스(서울·SF)·기타(홍콩) 를 망라.
+    private fun showDebugCoordInjector() {
+        val presets = listOf<Triple<String, Double, Double>>(
+            // 정상 케이스 — 기존 동작 회귀 확인용
+            Triple("🇰🇷 Seoul (KR 본토)",         37.5665, 126.9780),
+            Triple("🇰🇷 Dokdo (독도·울릉박스)",   37.2414, 131.8669),
+            Triple("🇺🇸 San Francisco (US)",     37.7749, -122.4194),
+            Triple("🇺🇸 Juneau (AK 판핸들)",     58.3019, -134.4197),
+
+            // PR #25 수정 대상 — OTHER 로 분류돼야 함
+            Triple("🇯🇵 Oita (큐슈 — OTHER)",    33.2382, 131.6126),
+            Triple("🇯🇵 Fukuoka (큐슈 — OTHER)", 33.5904, 130.4017),
+            Triple("🇨🇦 Vancouver (US→OTHER)",   49.2827, -123.1207),
+            Triple("🇨🇦 Whitehorse (AK→OTHER)",  60.7212, -135.0568),
+            Triple("🇲🇽 Monterrey (US→OTHER)",   25.6866, -100.3161),
+
+            // bbox 한계 — 여전히 US/KR 안에 남지만 NWS 404 + OWM 폴백으로 커버
+            Triple("🇨🇦 Toronto (bbox 한계)",    43.6532, -79.3832),
+            Triple("🇲🇽 Tijuana (bbox 한계)",    32.5149, -117.0382),
+
+            // OTHER 단독 경로 — OWM 전용
+            Triple("🇭🇰 Hong Kong (OTHER)",      22.3193, 114.1694),
+        )
+
+        val labels = presets.map { it.first }.toTypedArray()
+        AlertDialog.Builder(this)
+            .setTitle(R.string.debug_inject_coords_title)
+            .setItems(labels) { _, idx ->
+                val (label, lat, lon) = presets[idx]
+                // GPS 자동감지 OFF → 저장 좌표만 사용. 주입 즉시 바로 반영되도록.
+                LocationHelper.setUseGps(this, false)
+                LocationHelper.saveLocation(this, LatLon(lat, lon, label))
+                android.widget.Toast.makeText(
+                    this,
+                    getString(R.string.debug_inject_coords_applied, label),
+                    android.widget.Toast.LENGTH_LONG
+                ).show()
+                // 날씨 카드를 즉시 새 좌표로 갱신하도록 refresh 트리거
+                b.btnRefreshWeather.performClick()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
     // ─── 선택 모드 UI 업데이트 ───────────────────────────
