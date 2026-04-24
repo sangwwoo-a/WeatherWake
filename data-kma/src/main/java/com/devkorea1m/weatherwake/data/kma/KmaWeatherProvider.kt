@@ -4,6 +4,7 @@ import com.devkorea1m.weatherwake.data.model.WeatherConditionType
 import com.devkorea1m.weatherwake.data.repository.AppResult
 import com.devkorea1m.weatherwake.domain.WeatherProvider
 import com.devkorea1m.weatherwake.domain.WeatherSnapshot
+import com.devkorea1m.weatherwake.domain.WeatherSource
 import retrofit2.HttpException
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -122,7 +123,8 @@ class KmaWeatherProvider(
             tempCelsius   = t1h,
             cityName      = "",                                 // KMA는 도시명 제공 안 함
             rainMmh       = rainMmhOut,
-            snowMmh       = snowMmhOut
+            snowMmh       = snowMmhOut,
+            sources       = setOf(WeatherSource.KMA)
         )
     }
 
@@ -236,7 +238,8 @@ class KmaWeatherProvider(
                 conditionType = WeatherConditionType.CLEAR,
                 description   = "예보 없음",
                 tempCelsius   = 0.0,
-                cityName      = ""
+                cityName      = "",
+                sources       = setOf(WeatherSource.KMA)
             )
         }
 
@@ -259,7 +262,8 @@ class KmaWeatherProvider(
                         conditionType = WeatherConditionType.CLEAR,
                         description   = "예보 없음",
                         tempCelsius   = 0.0,
-                        cityName      = ""
+                        cityName      = "",
+                        sources       = setOf(WeatherSource.KMA)
                     )
                 filter { it.fcstDate == last.fcstDate && it.fcstTime == last.fcstTime }
             }
@@ -294,7 +298,8 @@ class KmaWeatherProvider(
             tempCelsius   = t1h,
             cityName      = "",
             rainMmh       = rainMmhOut,
-            snowMmh       = snowMmhOut
+            snowMmh       = snowMmhOut,
+            sources       = setOf(WeatherSource.KMA)
         )
     }
 

@@ -31,6 +31,7 @@ import androidx.lifecycle.lifecycleScope
 import com.devkorea1m.weatherwake.data.model.WeatherConditionType
 import com.devkorea1m.weatherwake.data.repository.AppResult
 import com.devkorea1m.weatherwake.domain.Region
+import com.devkorea1m.weatherwake.domain.WeatherSource
 import com.devkorea1m.weatherwake.databinding.ActivityMainBinding
 import com.devkorea1m.weatherwake.util.LocationHelper
 import com.devkorea1m.weatherwake.viewmodel.AlarmViewModel
@@ -115,9 +116,11 @@ class MainActivity : AppCompatActivity() {
             refreshWeatherCard()
         }
 
-        // 날씨 데이터 출처 — 초기에는 KR 기본(한국 사용자 가정). refreshWeatherCard()
-        // 에서 실제 좌표를 얻으면 Region 재판정 후 다시 호출되어 US / OTHER 로 전환됨.
-        setupWeatherAttribution(Region.KR)
+        // 날씨 데이터 출처 — 초기 placeholder (로케일 기본값). 실제 attribution 은
+        // refreshWeatherCard() 가 공급자 호출 후 snapshot.sources 로 다시 주입.
+        // 여기서 Region 으로 추측하는 이유: 첫 프레임에 "OpenWeatherMap 제공" 같은
+        // 텍스트가 빈 공간 없이 보이도록 하기 위함 (한 프레임이라도 공란 방지).
+        setupWeatherAttributionByRegion(Region.KR)
 
         // DevKorea1m 브랜드 워터마크 — "Built by DevKorea[1m]" 형태, "1m"은 YouTube Red, 탭 시 홈페이지
         setupBrandWatermark()
@@ -328,9 +331,8 @@ class MainActivity : AppCompatActivity() {
 
                 b.tvWeatherCity.text   = "📍 ${latLon.label}"
                 b.tvWeatherStatus.text = getString(R.string.message_checking_weather)
-                // 실제 좌표 확보 시점에 attribution 을 해당 region 으로 업데이트.
-                // KR 기본값과 같은 지역이면 no-op 이지만 미국 출장 중 등에서는 실시간 전환됨.
-                setupWeatherAttribution(Region.fromCoordinates(latLon.lat, latLon.lon))
+                // 로딩 중엔 Region 추측 기반 placeholder. 응답 후 실제 sources 로 교체.
+                setupWeatherAttributionByRegion(Region.fromCoordinates(latLon.lat, latLon.lon))
 
                 when (val result = com.devkorea1m.weatherwake.runtime.WeatherWakeRuntime
                     .weatherProvider.getCurrentWeather(lat = latLon.lat, lon = latLon.lon)) {
@@ -346,6 +348,10 @@ class MainActivity : AppCompatActivity() {
                             "📍 ${latLon.label}"
                         }
                         b.tvWeatherEmoji.text  = weatherEmoji(weather.conditionType)
+                        // 정직한 attribution: Region 이 아니라 **실제로 값을 준 공급자** 기준.
+                        // 예) Monterrey(US 박스 안) 에서 NWS 404 → OWM 단독 → sources={OWM}
+                        //     → "OpenWeatherMap 제공" 으로 정확히 표시.
+                        setupWeatherAttributionBySources(weather.sources)
                     }
                     is AppResult.NetworkError -> {
                         b.tvWeatherStatus.text = getString(R.string.message_weather_server_error, result.code)
@@ -370,62 +376,90 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * 상단 날씨 카드 하단의 출처 표시 설정.
+     * 상단 날씨 카드 하단의 출처 표시.
      *
-     * "기상청 국가기후데이터센터 + OpenWeatherMap 교차 검증 중" — 기관명 각각을
-     * ClickableSpan 으로 감싸서 탭 시 해당 공식 사이트가 열린다. 두 공급자의
-     * 약관(공공데이터포털 · OWM) 이 모두 표시·링크를 요구하므로 단일 링크 대신
-     * 분리 링크 방식.
+     * **이 함수군은 UI 의 attribution 을 다루는 유일한 경로**이며, 두 형태로 제공:
+     *  - [setupWeatherAttributionByRegion]: 공급자 호출 **전** placeholder (로딩 중 공백 방지)
+     *  - [setupWeatherAttributionBySources]: 공급자 호출 **후** 진실 (snapshot.sources 기반)
      *
-     * 문자열에서 기관명 위치는 indexOf 로 런타임에 찾는다 — 로케일마다 어순이
-     * 달라도 기관명 자체는 그대로 박혀있어 강건. 일치하지 않으면 span 만 생략
-     * (텍스트는 그대로 보이므로 fail-safe).
+     * 사용자에게 보이는 최종 attribution 은 항상 후자여야 한다. 전자는 잠깐의
+     * 로딩 프레임에서만 유효하며, 응답이 오면 즉시 덮어써진다.
      */
+    private fun setupWeatherAttributionByRegion(region: Region) {
+        // Region 은 "시도할" 공급자 집합을 표현. 최선의 추측이므로 "실제" 와
+        // 다를 수 있음을 의식하고 placeholder 로만 사용.
+        val guessedSources = when (region) {
+            Region.KR    -> setOf(WeatherSource.KMA, WeatherSource.OWM)
+            Region.US    -> setOf(WeatherSource.NWS, WeatherSource.OWM)
+            Region.OTHER -> setOf(WeatherSource.OWM)
+        }
+        renderAttribution(guessedSources)
+    }
+
     /**
-     * 상단 날씨 카드 하단 출처 표시를 [region] 에 맞춰 주입.
+     * **정직한** attribution — [WeatherSnapshot.sources] 기반.
      *
-     * - KR: "기상청 국가기후데이터센터 + OpenWeatherMap 교차 검증 중"
-     * - US: "NWS + OpenWeatherMap 교차 검증 중"
-     * - OTHER: "OpenWeatherMap 제공"
+     * 예) Monterrey(US 박스 안이지만 멕시코 도시):
+     *   - Region 라우팅은 US 로 NWS 를 시도하지만
+     *   - NWS 가 404 → CrossValidatingWeatherProvider 가 OWM 폴백
+     *   - snapshot.sources == {OWM} → UI 는 "OpenWeatherMap 제공" 정확히 표시
      *
-     * 해당 Region 에서 실제로 호출되는 공급자 이름만 링크화 (OWM 은 항상 포함,
-     * KMA 는 KR 에서만, NWS 는 US 에서만). OTHER 지역에선 OWM 단독이므로
-     * KMA/NWS 링크 없음 — 약관상 공급자 표기 의무도 OWM 만 해당됨.
+     * sources 가 비어있으면 (Worker 시뮬레이션 등 비정상 경로) OWM 로 폴백 —
+     * "모름" 을 표시하기보다 가장 범용적인 공급자 라벨이 안전.
      */
-    private fun setupWeatherAttribution(region: Region) {
-        val full = getString(when (region) {
-            Region.KR    -> R.string.weather_attribution_kr
-            Region.US    -> R.string.weather_attribution_us
-            Region.OTHER -> R.string.weather_attribution_global
-        })
+    private fun setupWeatherAttributionBySources(sources: Set<WeatherSource>) {
+        val effective = sources.ifEmpty { setOf(WeatherSource.OWM) }
+        renderAttribution(effective)
+    }
+
+    /**
+     * [sources] 집합 → 문자열 + ClickableSpan 으로 구성한 후 TextView 주입.
+     *
+     * 문자열 선택 기준:
+     *  - {KMA, OWM}  → "기상청 국가기후데이터센터 + OpenWeatherMap 교차 검증 중"
+     *  - {NWS, OWM}  → "NWS + OpenWeatherMap 교차 검증 중"
+     *  - {OWM}       → "OpenWeatherMap 제공"
+     *  - {KMA}       → "기상청 국가기후데이터센터" (OWM 실패 상황 — 드물지만 있을 수 있음)
+     *  - {NWS}       → "NWS"
+     *  - {}          → 호출부에서 이미 OWM 으로 폴백했으니 여기 도달 시엔 {OWM}
+     *
+     * ClickableSpan 은 각 공급자명에 적용 — 약관(공공데이터포털·OWM·NWS)상 출처
+     * 링크 요구를 만족. 밑줄·파란색은 제거해 본문과 톤 통일.
+     */
+    private fun renderAttribution(sources: Set<WeatherSource>) {
+        val full = getString(
+            when {
+                sources.containsAll(listOf(WeatherSource.KMA, WeatherSource.OWM)) -> R.string.weather_attribution_kr
+                sources.containsAll(listOf(WeatherSource.NWS, WeatherSource.OWM)) -> R.string.weather_attribution_us
+                sources == setOf(WeatherSource.OWM) -> R.string.weather_attribution_global
+                sources == setOf(WeatherSource.KMA) -> R.string.weather_attribution_kma
+                sources == setOf(WeatherSource.NWS) -> R.string.weather_attribution_nws
+                else -> R.string.weather_attribution_global   // 방어 폴백
+            }
+        )
 
         val sb = SpannableStringBuilder(full)
 
         // 기본 ClickableSpan 은 시스템 링크색(파란색) + 밑줄을 강제로 덧씌워 주변 텍스트와
         // 시각적 불일치가 생긴다. 여기선 공급자 표기 자체가 문장의 일부로 읽히길 원하므로
-        // updateDrawState 로 링크 스타일을 제거 — TextView 의 원래 color/size 가 그대로
-        // 상속되어 본문과 동일한 폰트로 보이면서 여전히 탭 가능.
+        // updateDrawState 로 링크 스타일을 제거.
         fun linkSpan(url: String) = object : ClickableSpan() {
             override fun onClick(widget: View) { openUrl(url) }
             override fun updateDrawState(ds: android.text.TextPaint) {
                 ds.isUnderlineText = false
-                // color 는 일부러 건드리지 않음 → TextView 의 textColor(text_hint) 가 유지됨
             }
         }
 
-        // 공급자별 링크 텍스트 + URL — 해당 region 에서 실제 호출되는 것만 span 적용.
-        val spans: List<Triple<String, String, Boolean>> = listOf(
-            Triple(getString(R.string.weather_attribution_kma), "https://data.kma.go.kr",      region == Region.KR),
-            Triple(getString(R.string.weather_attribution_nws), "https://www.weather.gov",     region == Region.US),
-            Triple(getString(R.string.weather_attribution_owm), "https://openweathermap.org",  true)  // OWM 은 모든 region 에서
-        )
-        spans.filter { it.third }.forEach { (name, url, _) ->
+        // 실제 sources 에 포함된 공급자만 링크 span 적용 — 약관 의무 이행.
+        val spans: List<Pair<String, String>> = buildList {
+            if (WeatherSource.KMA in sources) add(getString(R.string.weather_attribution_kma) to "https://data.kma.go.kr")
+            if (WeatherSource.NWS in sources) add(getString(R.string.weather_attribution_nws) to "https://www.weather.gov")
+            if (WeatherSource.OWM in sources) add(getString(R.string.weather_attribution_owm) to "https://openweathermap.org")
+        }
+        spans.forEach { (name, url) ->
             val start = full.indexOf(name)
             if (start >= 0) {
-                sb.setSpan(
-                    linkSpan(url),
-                    start, start + name.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
+                sb.setSpan(linkSpan(url), start, start + name.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
         }
 

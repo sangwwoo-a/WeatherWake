@@ -4,6 +4,7 @@ import com.devkorea1m.weatherwake.data.model.WeatherConditionType
 import com.devkorea1m.weatherwake.data.repository.AppResult
 import com.devkorea1m.weatherwake.domain.WeatherProvider
 import com.devkorea1m.weatherwake.domain.WeatherSnapshot
+import com.devkorea1m.weatherwake.domain.WeatherSource
 import retrofit2.HttpException
 import java.io.IOException
 import java.time.OffsetDateTime
@@ -95,7 +96,8 @@ class NwsWeatherProvider(
             tempCelsius   = tempC,
             cityName      = city,
             rainMmh       = if (condition == WeatherConditionType.RAIN) rainMmh else null,
-            snowMmh       = if (condition == WeatherConditionType.SNOW) rainMmh else null
+            snowMmh       = if (condition == WeatherConditionType.SNOW) rainMmh else null,
+            sources       = setOf(WeatherSource.NWS)
         )
     }
 
@@ -209,7 +211,8 @@ class NwsWeatherProvider(
             cityName      = city,
             // mm/h 실측 없음 → null 로 두면 Worker fallback 이 보통 민감도에서 트리거
             rainMmh       = null,
-            snowMmh       = null
+            snowMmh       = null,
+            sources       = setOf(WeatherSource.NWS)
         )
     }
 }

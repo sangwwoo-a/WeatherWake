@@ -7,6 +7,7 @@ import com.devkorea1m.weatherwake.data.model.WeatherResponse
 import com.devkorea1m.weatherwake.data.network.RetrofitClient
 import com.devkorea1m.weatherwake.domain.WeatherProvider
 import com.devkorea1m.weatherwake.domain.WeatherSnapshot
+import com.devkorea1m.weatherwake.domain.WeatherSource
 import retrofit2.HttpException
 import java.io.IOException
 
@@ -96,7 +97,8 @@ class WeatherRepository(
             tempCelsius   = main.temp,
             cityName      = cityName,
             rainMmh       = rain?.mmh(),
-            snowMmh       = snow?.mmh()
+            snowMmh       = snow?.mmh(),
+            sources       = setOf(WeatherSource.OWM)
         )
     }
 
@@ -109,7 +111,8 @@ class WeatherRepository(
             tempCelsius   = main.temp,
             cityName      = cityName,
             rainMmh       = rain?.mmh(),
-            snowMmh       = snow?.mmh()
+            snowMmh       = snow?.mmh(),
+            sources       = setOf(WeatherSource.OWM)
         )
     }
 
