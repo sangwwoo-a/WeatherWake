@@ -18,4 +18,14 @@
         android:title="@string/menu_terms_of_service"
         app:showAsAction="never" />
 
+    <!--
+      디버그 전용 테스트 좌표 주입. MainActivity.onPrepareOptionsMenu 에서
+      BuildConfig.DEBUG 가 아닐 때 visible=false 처리. 릴리스 APK/AAB 엔
+      아이템이 표시되지 않음.
+    -->
+    <item
+        android:id="@+id/menu_debug_inject_coords"
+        android:title="@string/menu_debug_inject_coords"
+        app:showAsAction="never" />
+
 </menu>

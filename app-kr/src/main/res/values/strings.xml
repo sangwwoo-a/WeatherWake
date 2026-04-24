@@ -139,6 +139,11 @@
     <string name="url_privacy_policy" translatable="false">https://devkorea1m.com/weatherwake/privacy-policy.html</string>
     <string name="url_terms_of_service" translatable="false">https://devkorea1m.com/weatherwake/terms-of-service.html</string>
 
+    <!-- Debug-only — hidden in release builds -->
+    <string name="menu_debug_inject_coords">🧪 Inject Test Coords</string>
+    <string name="debug_inject_coords_title">Inject Test Coords (Debug)</string>
+    <string name="debug_inject_coords_applied">Injected: %1$s — tap refresh to verify</string>
+
     <!-- Weather Rain/Snow Activity -->
     <string name="toolbar_title_weather">Weather Settings</string>
     <string name="toolbar_subtitle_rain">Step 2 · ☔ When raining</string>

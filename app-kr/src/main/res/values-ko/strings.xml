@@ -145,6 +145,11 @@
     <string name="menu_terms_of_service">서비스 이용약관</string>
     <string name="url_privacy_policy" translatable="false">https://devkorea1m.com/weatherwake/privacy-policy.html</string>
     <string name="url_terms_of_service" translatable="false">https://devkorea1m.com/weatherwake/terms-of-service.html</string>
+
+    <!-- 디버그 전용 — 릴리스 빌드에선 표시 안 됨 -->
+    <string name="menu_debug_inject_coords">🧪 테스트 좌표 주입</string>
+    <string name="debug_inject_coords_title">테스트 좌표 주입 (디버그)</string>
+    <string name="debug_inject_coords_applied">좌표 주입됨: %1$s — 새로고침을 눌러 확인</string>
     <string name="action_refresh_weather">날씨 새로고침</string>
     <string name="label_location_checking">위치 확인 중…</string>
 
