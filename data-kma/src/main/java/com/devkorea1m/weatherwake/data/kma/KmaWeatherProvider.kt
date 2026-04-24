@@ -56,7 +56,21 @@ class KmaWeatherProvider(
                 )
             }
             val items = response.response.body?.items?.item.orEmpty()
-            AppResult.Success(items.toSnapshot())
+            val snap = items.toSnapshot()
+
+            // Defense-in-depth: KMA 는 "측정 불가" 를 -999 sentinel 로 표현한다.
+            // Region 라우팅 버그(과거 큐슈 좌표가 KR 로 판정) 나 제주 남단 해상
+            // 등 격자 경계 케이스에서 resultCode 는 00 이지만 값이 -999 로 오는
+            // 경우가 실제 발생. 이 값이 그대로 UI 에 노출되면 "-999.0°C" 로
+            // 보인다 → 호출부(CrossValidatingWeatherProvider)가 OWM 2차로
+            // 폴백하도록 Error 로 전환.
+            if (snap.tempCelsius <= -100.0) {
+                return AppResult.Error(
+                    IllegalStateException("KMA sentinel temp ${snap.tempCelsius} at ($lat,$lon)"),
+                    "기상청 관측 불가 지점입니다"
+                )
+            }
+            AppResult.Success(snap)
         } catch (e: HttpException) {
             AppResult.NetworkError(e.code(), "기상청 서버 오류 (${e.code()})")
         } catch (e: IOException) {
@@ -172,7 +186,17 @@ class KmaWeatherProvider(
                 )
             }
             val items = response.response.body?.items?.item.orEmpty()
-            AppResult.Success(items.toForecastSnapshot(targetEpochMs))
+            val snap = items.toForecastSnapshot(targetEpochMs)
+
+            // Defense-in-depth: sentinel(-999) 차단. getCurrentWeather 와 동일
+            // 정책 — 값이 비정상이면 Error 로 전환해 aggregator 가 OWM 으로 폴백.
+            if (snap.tempCelsius <= -100.0) {
+                return AppResult.Error(
+                    IllegalStateException("KMA forecast sentinel ${snap.tempCelsius} at ($lat,$lon)"),
+                    "기상청 예보 없음 지점입니다"
+                )
+            }
+            AppResult.Success(snap)
         } catch (e: HttpException) {
             AppResult.NetworkError(e.code(), "기상청 서버 오류 (${e.code()})")
         } catch (e: IOException) {
