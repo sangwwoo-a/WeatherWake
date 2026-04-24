@@ -128,7 +128,10 @@ class CrossValidatingWeatherProvider(
             tempCelsius   = p.tempCelsius,
             cityName      = p.cityName.ifBlank { s.cityName },
             rainMmh       = rainMmh,
-            snowMmh       = snowMmh
+            snowMmh       = snowMmh,
+            // 양쪽 다 성공했으니 두 공급자 모두 기여 — UI 가 "KMA + OWM 교차 검증"
+            // 같은 복수 소스 attribution 을 표시할 수 있도록 합집합.
+            sources       = p.sources + s.sources
         )
     }
 
