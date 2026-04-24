@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  메인 툴바 오버플로 메뉴.
+  법적 링크(개인정보처리방침·이용약관)는 메인 레이아웃 공간을 차지하지
+  않도록 3점 메뉴에 숨겨서 노출. Play Console 정책상 앱 내 접근 경로만
+  보장되면 충분.
+-->
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/menu_privacy_policy"
+        android:title="@string/menu_privacy_policy"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/menu_terms_of_service"
+        android:title="@string/menu_terms_of_service"
+        app:showAsAction="never" />
+
+</menu>
