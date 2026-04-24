@@ -136,8 +136,13 @@ class WeatherCheckWorker(
                         "diffMin($diffMin) > advance($advance)? ${diffMin > advance} isMoved=${alarm.isMoved}")
                 if (triggered && diffMin > advance && !alarm.isMoved) {
                     Log.i(TAG, "  → ADVANCING alarm by $advance min, persisting isMoved=true")
-                    AlarmScheduler.schedule(context, alarm, advance, weather.description)
-                    db.alarmDao().setMoved(alarm.id, true, weather.description)
+                    // movedReason 은 UI 에서 resource key 로 매핑되는 안정적 코드로 저장.
+                    // (conditionType.name = "RAIN"/"SNOW"). 이전엔 weather.description
+                    // 원문을 넣어서 "🧪 시뮬: 강우" 같은 내부 디버그 문구가 UI 에 노출되는
+                    // 버그가 있었음.
+                    val reasonCode = weather.conditionType.name
+                    AlarmScheduler.schedule(context, alarm, advance, reasonCode)
+                    db.alarmDao().setMoved(alarm.id, true, reasonCode)
                 } else {
                     Log.i(TAG, "  → not advancing (conditions not all met)")
                 }
@@ -154,8 +159,13 @@ class WeatherCheckWorker(
                         "diffMin($diffMin) > advance($advance)? ${diffMin > advance} isMoved=${alarm.isMoved}")
                 if (triggered && diffMin > advance && !alarm.isMoved) {
                     Log.i(TAG, "  → ADVANCING alarm by $advance min, persisting isMoved=true")
-                    AlarmScheduler.schedule(context, alarm, advance, weather.description)
-                    db.alarmDao().setMoved(alarm.id, true, weather.description)
+                    // movedReason 은 UI 에서 resource key 로 매핑되는 안정적 코드로 저장.
+                    // (conditionType.name = "RAIN"/"SNOW"). 이전엔 weather.description
+                    // 원문을 넣어서 "🧪 시뮬: 강우" 같은 내부 디버그 문구가 UI 에 노출되는
+                    // 버그가 있었음.
+                    val reasonCode = weather.conditionType.name
+                    AlarmScheduler.schedule(context, alarm, advance, reasonCode)
+                    db.alarmDao().setMoved(alarm.id, true, reasonCode)
                 } else {
                     Log.i(TAG, "  → not advancing (conditions not all met)")
                 }

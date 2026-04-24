@@ -56,8 +56,14 @@
     <string name="advance_one_hour">1시간</string>
     <string name="advance_minutes_format">%d분</string>
 
-    <!-- Moved reason format -->
-    <string name="moved_reason_format">⏰ %1$s으로 앞당겨졌어요</string>
+    <!--
+      Moved reason (알람 카드 / 알람 발동 화면에 표시).
+      조사 불일치("비으로") 방지 + 불필요한 이모지 제거를 위해 공급자별 완성형 문장으로 분리.
+      fallback(_format)은 레거시 데이터(원문 저장된 이전 버전) 호환용.
+    -->
+    <string name="moved_reason_card_rain">비 예보로 알람을 앞당겼어요</string>
+    <string name="moved_reason_card_snow">눈 예보로 알람을 앞당겼어요</string>
+    <string name="moved_reason_format">%1$s 예보로 알람을 앞당겼어요</string>
 
     <!-- Location Setting Activity -->
     <string name="label_current_location">현재 위치</string>
@@ -199,7 +205,10 @@
     <string name="notification_channel_desc">WeatherWake 알람 알림</string>
 
     <!-- Messages -->
-    <string name="message_woke_earlier">%1$s\n더 일찍 깨웠어요 ⏰</string>
+    <string name="message_woke_earlier_rain">비 예보가 있어 평소보다 일찍 깨워드렸어요</string>
+    <string name="message_woke_earlier_snow">눈 예보가 있어 평소보다 일찍 깨워드렸어요</string>
+    <!-- 레거시(원문 저장) 데이터 호환용 폴백 -->
+    <string name="message_woke_earlier">%1$s 예보가 있어 평소보다 일찍 깨워드렸어요</string>
     <string name="action_dismiss">끄기</string>
 
     <!-- Moved reason -->

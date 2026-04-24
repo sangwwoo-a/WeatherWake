@@ -87,8 +87,7 @@ class AlarmRingActivity : AppCompatActivity() {
 
         // 앞당김 이유 표시
         if (isMoved && movedReason.isNotEmpty()) {
-            val reasonText = movedReasonText(movedReason)
-            b.tvReason.text = getString(R.string.message_woke_earlier, reasonText)
+            b.tvReason.text = movedReasonRingText(movedReason)
             b.tvReason.visibility = android.view.View.VISIBLE
         } else {
             b.tvReason.visibility = android.view.View.GONE
@@ -130,11 +129,15 @@ class AlarmRingActivity : AppCompatActivity() {
      * 끄기 / 스누즈 액션을 AlarmService로 전달.
      * AlarmService가 소리·진동 정지 → ACTION_FINISH_RING 브로드캐스트 → finish() 순서로 처리.
      */
-    /** 저장된 코드("RAIN", "SNOW" 등)를 표시용 문자열로 변환 */
-    private fun movedReasonText(code: String): String = when (code) {
-        "RAIN" -> getString(R.string.moved_reason_rain)
-        "SNOW" -> getString(R.string.moved_reason_snow)
-        else -> code  // 하위호환: 이미 한국어가 저장된 기존 데이터는 그대로 표시
+    /**
+     * 알람 발동 화면용 문구 생성.
+     * 신규 데이터(RAIN/SNOW 코드)는 공급자별 완성형 문장을 반환.
+     * 레거시 데이터(원문 저장)는 _format 폴백으로 감싸 조사 어색함을 최소화.
+     */
+    private fun movedReasonRingText(code: String): String = when (code) {
+        "RAIN" -> getString(R.string.message_woke_earlier_rain)
+        "SNOW" -> getString(R.string.message_woke_earlier_snow)
+        else -> getString(R.string.message_woke_earlier, code)
     }
 
     private fun sendActionToService(action: String) {

@@ -62,8 +62,7 @@ class AlarmAdapter(
 
             // 앞당겨진 경우 이유 표시
             if (alarm.isMoved && alarm.movedReason.isNotEmpty()) {
-                val reasonText = movedReasonText(b.root.context, alarm.movedReason)
-                b.tvMoved.text = b.root.context.getString(R.string.moved_reason_format, reasonText)
+                b.tvMoved.text = movedReasonCardText(b.root.context, alarm.movedReason)
                 b.tvMoved.visibility = View.VISIBLE
             } else {
                 b.tvMoved.visibility = View.GONE
@@ -225,11 +224,15 @@ class AlarmAdapter(
             context.getString(R.string.day_sat)
         )
 
-        /** 저장된 코드("RAIN", "SNOW" 등)를 표시용 문자열로 변환 */
-        private fun movedReasonText(context: android.content.Context, code: String): String = when (code) {
-            "RAIN" -> context.getString(R.string.moved_reason_rain)
-            "SNOW" -> context.getString(R.string.moved_reason_snow)
-            else -> code  // 하위호환: 이미 한국어가 저장된 기존 데이터는 그대로 표시
+        /**
+         * 알람 카드용 문구 생성.
+         * 신규 데이터(RAIN/SNOW 코드)는 공급자별 완성형 문장을 그대로 반환.
+         * 레거시 데이터(원문 저장)는 _format 폴백으로 감싸 조사 어색함을 최소화.
+         */
+        private fun movedReasonCardText(context: android.content.Context, code: String): String = when (code) {
+            "RAIN" -> context.getString(R.string.moved_reason_card_rain)
+            "SNOW" -> context.getString(R.string.moved_reason_card_snow)
+            else -> context.getString(R.string.moved_reason_format, code)
         }
 
         /**

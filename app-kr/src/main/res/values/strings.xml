@@ -56,8 +56,10 @@
     <string name="advance_one_hour">1 hour</string>
     <string name="advance_minutes_format">%d min</string>
 
-    <!-- Moved reason format -->
-    <string name="moved_reason_format">⏰ Moved earlier due to %1$s</string>
+    <!-- Moved reason (per-variant copy; _format retained for legacy rows) -->
+    <string name="moved_reason_card_rain">Moved earlier for expected rain</string>
+    <string name="moved_reason_card_snow">Moved earlier for expected snow</string>
+    <string name="moved_reason_format">Moved earlier for expected %1$s</string>
 
     <!-- Location Setting Activity -->
     <string name="label_current_location">Current Location</string>
@@ -192,7 +194,10 @@
     <string name="notification_channel_desc">WeatherWake alarm notifications</string>
 
     <!-- Messages -->
-    <string name="message_woke_earlier">%1$s\nWoke you earlier ⏰</string>
+    <string name="message_woke_earlier_rain">Woke you earlier because rain is expected</string>
+    <string name="message_woke_earlier_snow">Woke you earlier because snow is expected</string>
+    <!-- Legacy fallback for rows that stored raw provider text -->
+    <string name="message_woke_earlier">Woke you earlier because %1$s is expected</string>
     <string name="action_dismiss">Turn off</string>
 
     <!-- Moved reason -->
