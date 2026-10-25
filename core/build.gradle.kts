@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.devkorea1m.weatherwake.core"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 26

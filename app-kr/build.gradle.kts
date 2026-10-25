@@ -14,14 +14,16 @@ val localProps = Properties().apply {
 
 android {
     namespace = "com.devkorea1m.weatherwake"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.devkorea1m.weatherwake"
         minSdk = 26
-        targetSdk = 35
-        versionCode = 25
-        versionName = "1.2.5"
+        // Google Play Target API 요구사항: 2026-08-31 부터 Android 16 (API 36)
+        // 이상 타게팅 필수. 미달 시 업데이트 게시 불가.
+        targetSdk = 36
+        versionCode = 27
+        versionName = "1.2.7"
 
         buildConfigField(
             "String", "OWM_API_KEY",
