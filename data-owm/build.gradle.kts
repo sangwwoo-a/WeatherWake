@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.devkorea1m.weatherwake.data.owm"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 26

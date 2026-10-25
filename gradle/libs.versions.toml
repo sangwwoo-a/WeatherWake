@@ -1,5 +1,7 @@
 [versions]
-agp = "8.7.3"
+# AGP 8.9+ 는 compileSdk 36 (Android 16) 공식 지원. Google Play 가 2026-08-31
+# 부터 targetSdk 36 미달 앱의 업데이트를 거부하므로 필수 bump.
+agp = "8.9.1"
 kotlin = "2.0.0"
 coreKtx = "1.13.1"
 appcompat = "1.7.0"
