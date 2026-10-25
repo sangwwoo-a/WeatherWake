@@ -22,8 +22,8 @@ android {
         // Google Play Target API 요구사항: 2026-08-31 부터 Android 16 (API 36)
         // 이상 타게팅 필수. 미달 시 업데이트 게시 불가.
         targetSdk = 36
-        versionCode = 27
-        versionName = "1.2.7"
+        versionCode = 28
+        versionName = "1.2.8"
 
         buildConfigField(
             "String", "OWM_API_KEY",
